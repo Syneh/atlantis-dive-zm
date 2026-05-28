@@ -187,7 +187,7 @@
       <div><label>手機號碼 *</label><input type="tel" id="f-phone" placeholder="0912345678"></div>
     </div>
     <div id="row-dive-date">
-      <label>潛水日期 *</label><input type="date" id="f-dive-date">
+      <label id="label-dive-date">潛水日期 *</label><input type="date" id="f-dive-date">
     </div>
     <div id="row-time-gear" class="row2" style="margin-top:0;">
       <div style="display:none;"></div>
@@ -331,7 +331,7 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <div>
       <h2 style="color:var(--deep);font-size:1.3rem;">🛠️ 店長後台</h2>
-      <p style="font-size:0.75rem;color:var(--sub);margin-top:3px;">v1.4.0</p>
+      <p style="font-size:0.75rem;color:var(--sub);margin-top:3px;">v1.4.1</p>
     </div>
     <button class="btn btn-outline btn-sm" onclick="logoutAdmin()">登出</button>
   </div>
@@ -455,11 +455,28 @@ async function proceedType() {
   const isTeam = currentType === 'team';
   // 潛水日期：團體自動帶入成團日期並鎖定
   const diveDateEl = document.getElementById('f-dive-date');
-  diveDateEl.value = isTeam && currentTeam?.date ? currentTeam.date : '';
-  diveDateEl.readOnly = isTeam;
-  diveDateEl.style.background = isTeam ? '#f0f9ff' : '#fff';
-  diveDateEl.style.color = isTeam ? 'var(--ocean)' : '';
-  // 時間與交通：團體報名隱藏
+  if (isTeam && currentTeam?.date) {
+    // 確保日期格式為 YYYY-MM-DD
+    const raw = currentTeam.date;
+    let formatted = raw;
+    // 如果是 YYYY/MM/DD 轉成 YYYY-MM-DD
+    if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(raw)) {
+      const parts = raw.split('/');
+      formatted = parts[0] + '-' + parts[1].padStart(2,'0') + '-' + parts[2].padStart(2,'0');
+    }
+    diveDateEl.value = formatted;
+    diveDateEl.readOnly = true;
+    diveDateEl.style.background = '#f0f9ff';
+    diveDateEl.style.color = 'var(--ocean)';
+    diveDateEl.style.fontWeight = '600';
+  } else {
+    diveDateEl.value = '';
+    diveDateEl.readOnly = false;
+    diveDateEl.style.background = '#fff';
+    diveDateEl.style.color = '';
+    diveDateEl.style.fontWeight = '';
+  }
+  document.getElementById('label-dive-date').textContent = isTeam ? '潛水日期（成團日期）' : '潛水日期 *';
   document.getElementById('row-time-gear').style.display = isTeam ? 'none' : 'block';
   document.getElementById('row-transport').style.display = isTeam ? 'none' : 'block';
 
@@ -478,7 +495,12 @@ function loadSavedData() {
 
 // ── Basic → Health ──
 function goHealth() {
-  for (let id of ['f-name','f-id','f-dob','f-phone','f-dive-date']) {
+  const isTeam = currentType === 'team';
+  // 個人報名才驗證潛水日期
+  const requiredFields = isTeam
+    ? ['f-name','f-id','f-dob','f-phone']
+    : ['f-name','f-id','f-dob','f-phone','f-dive-date'];
+  for (let id of requiredFields) {
     if (!document.getElementById(id).value.trim()) {
       alert('請填寫所有必填欄位（標有 * 的欄位）');
       document.getElementById(id).focus();
