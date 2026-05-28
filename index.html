@@ -186,8 +186,11 @@
       <div><label>配重 (kg)</label><input type="number" id="f-ballast" placeholder="4"></div>
       <div><label>手機號碼 *</label><input type="tel" id="f-phone" placeholder="0912345678"></div>
     </div>
-    <div class="row2">
-      <div><label>潛水日期 *</label><input type="date" id="f-dive-date"></div>
+    <div id="row-dive-date">
+      <label>潛水日期 *</label><input type="date" id="f-dive-date">
+    </div>
+    <div id="row-time-gear" class="row2" style="margin-top:0;">
+      <div style="display:none;"></div>
       <div>
         <label>想要的時間</label>
         <select id="f-time">
@@ -221,12 +224,14 @@
       <div><label>潛水支數</label><input type="number" id="f-dives" placeholder="0"></div>
     </div>
     <label>上一次潛水時間</label><input type="date" id="f-last-dive">
-    <label>是否需要安排東北角交通</label>
-    <select id="f-transport">
-      <option value="">請選擇</option>
-      <option>不需要，自行前往</option>
-      <option>需要，請幫我安排</option>
-    </select>
+    <div id="row-transport">
+      <label>是否需要安排東北角交通</label>
+      <select id="f-transport">
+        <option value="">請選擇</option>
+        <option>不需要，自行前往</option>
+        <option>需要，請幫我安排</option>
+      </select>
+    </div>
     <label>其他想說的話</label>
     <textarea id="f-notes" placeholder="特殊需求、問題或備註…"></textarea>
   </div>
@@ -438,12 +443,23 @@ async function proceedType() {
       if (!team) { document.getElementById('team-code-msg').innerHTML = '<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>'; return; }
       currentTeam = team;
       document.getElementById('team-banner').style.display = 'block';
-      document.getElementById('team-banner-name').textContent = team.code + (team.desc ? ` (${team.desc})` : '');
+      document.getElementById('team-banner-name').textContent = team.code + (team.desc ? ` (${team.desc})` : '') + (team.date ? `　📅 ${team.date}` : '');
     } catch(e) { hideLoading(); alert('網路錯誤，請稍後再試'); return; }
   } else {
     currentTeam = null;
     document.getElementById('team-banner').style.display = 'none';
   }
+  const isTeam = currentType === 'team';
+  // 潛水日期：團體自動帶入成團日期並鎖定
+  const diveDateEl = document.getElementById('f-dive-date');
+  diveDateEl.value = isTeam && currentTeam?.date ? currentTeam.date : '';
+  diveDateEl.readOnly = isTeam;
+  diveDateEl.style.background = isTeam ? '#f0f9ff' : '#fff';
+  diveDateEl.style.color = isTeam ? 'var(--ocean)' : '';
+  // 時間與交通：團體報名隱藏
+  document.getElementById('row-time-gear').style.display = isTeam ? 'none' : 'block';
+  document.getElementById('row-transport').style.display = isTeam ? 'none' : 'block';
+
   goPage('page-basic');
 }
 
