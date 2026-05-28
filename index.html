@@ -336,8 +336,11 @@
     <div class="card">
       <h3>➕ 開立新團</h3>
       <div class="row2">
-        <div><label>團名代碼</label><input type="text" id="new-team-code" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()"></div>
+        <div><label>團名代碼 *</label><input type="text" id="new-team-code" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()"></div>
         <div><label>團體說明（可選）</label><input type="text" id="new-team-desc" placeholder="例如：暑假班"></div>
+      </div>
+      <div class="row2">
+        <div><label>成團日期 *</label><input type="date" id="new-team-date"></div>
       </div>
       <button class="btn btn-primary" style="margin-top:12px;width:auto;padding:10px 24px;" onclick="createTeam()">開立團體</button>
     </div>
@@ -641,15 +644,18 @@ async function loadAllRegs() {
 async function createTeam() {
   const code = document.getElementById('new-team-code').value.trim().toUpperCase();
   const desc = document.getElementById('new-team-desc').value.trim();
+  const date = document.getElementById('new-team-date').value;
   if (!code) { alert('請輸入團名代碼'); return; }
+  if (!date) { alert('請選擇成團日期'); return; }
   showLoading('建立團體中…');
   try {
-    const data = await api({ action:'createTeam', code, desc });
+    const data = await api({ action:'createTeam', code, desc, date });
     hideLoading();
     if (data.error === 'exists') { alert('此代碼已存在，請使用其他代碼'); return; }
-    cachedTeams.push({ code, desc, createdAt: new Date().toLocaleString('zh-TW') });
+    cachedTeams.push({ code, desc, date, createdAt: new Date().toLocaleString('zh-TW') });
     document.getElementById('new-team-code').value = '';
     document.getElementById('new-team-desc').value = '';
+    document.getElementById('new-team-date').value = '';
     renderTeamsList(); renderExportSel();
   } catch(e) { hideLoading(); alert('建立失敗，請稍後再試'); }
 }
@@ -679,7 +685,7 @@ function renderTeamsList() {
         <span class="badge">${members.length} 人</span>
         <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="deleteTeam('${t.code}')">刪除</button>
       </div>
-      <p style="font-size:0.78rem;color:var(--sub);margin-top:4px;">建立時間：${t.createdAt||''}</p>
+      <p style="font-size:0.78rem;color:var(--sub);margin-top:4px;">成團日期：${t.date||'未設定'} ｜ 建立時間：${t.createdAt||''}</p>
       ${members.length
         ? `<ul class="team-list" style="margin-top:10px;">${members.map(m=>`<li><span>${m['姓名']}（${m['手機']}）</span><span style="color:var(--sub);font-size:0.78rem;">${m['潛水日期']}</span></li>`).join('')}</ul>`
         : '<p style="font-size:0.82rem;color:var(--sub);margin-top:8px;">尚無成員</p>'}
