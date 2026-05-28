@@ -47,8 +47,8 @@
 
   .health-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--foam); }
   .health-item:last-child { border-bottom: none; }
-  .health-item span { font-size: 0.9rem; flex: 1; }
-  .toggle-group { display: flex; gap: 8px; }
+  .health-item span { font-size: 0.9rem; flex: 1; padding-right: 10px; }
+  .toggle-group { display: flex; gap: 8px; flex-shrink: 0; }
   .tog { padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--light); cursor: pointer; font-size: 0.82rem; background: white; transition: all 0.15s; }
   .tog.yes { background: #ffd6d6; border-color: var(--warn); color: var(--warn); }
   .tog.no { background: #d6f5e0; border-color: var(--ok); color: #1a7a3a; }
@@ -66,8 +66,8 @@
 
   .admin-page { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
   .admin-page.active { display: block; }
-  .admin-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--light); }
-  .admin-tab { padding: 10px 20px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; margin-bottom: -2px; color: var(--sub); }
+  .admin-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid var(--light); overflow-x: auto; }
+  .admin-tab { padding: 10px 20px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; margin-bottom: -2px; color: var(--sub); white-space: nowrap; }
   .admin-tab.active { border-bottom-color: var(--ocean); color: var(--ocean); font-weight: 700; }
   .member-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
   .member-table th { background: var(--foam); color: var(--deep); padding: 8px; text-align: left; }
@@ -103,7 +103,6 @@
 </head>
 <body>
 
-<!-- Loading Mask -->
 <div class="loading-mask" id="loadingMask">
   <div class="spinner"></div>
   <p id="loadingMsg">處理中…</p>
@@ -174,7 +173,7 @@
     </div>
     <div id="team-code-box" style="display:none; margin-top:16px;">
       <label>請輸入團名代碼（由店長提供）</label>
-      <input type="text" id="teamCodeInput" placeholder="例如：TEAM2025A" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      <input type="text" id="teamCodeInput" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()">
       <p id="team-code-msg" style="font-size:0.82rem; margin-top:6px;"></p>
     </div>
     <button class="btn btn-primary" style="margin-top:18px;" onclick="proceedType()">下一步 →</button>
@@ -347,7 +346,6 @@
     <div class="admin-tab" onclick="switchTab('tab-export', this)">📤 保險資料匯出</div>
   </div>
 
-  <!-- Teams Tab -->
   <div id="tab-teams" class="tab-content">
     <div class="card">
       <h3>➕ 開立新團</h3>
@@ -360,7 +358,6 @@
     <div id="teams-list"><p style="color:var(--sub);font-size:0.88rem;padding:10px 0;">載入中…</p></div>
   </div>
 
-  <!-- All Tab -->
   <div id="tab-all" class="tab-content" style="display:none;">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
@@ -376,7 +373,6 @@
     </div>
   </div>
 
-  <!-- Export Tab -->
   <div id="tab-export" class="tab-content" style="display:none;">
     <div class="card">
       <h3>📤 保險資料匯出</h3>
@@ -388,7 +384,7 @@
         <strong style="font-size:0.88rem;">匯出格式：</strong>
         <label><input type="checkbox" id="exp-excel" checked> Excel (.csv)</label>
         <label><input type="checkbox" id="exp-txt"> 純文字 (.txt)</label>
-        <label><input type="checkbox" id="exp-pdf"> PDF（列印格式）</label>
+        <label><input type="checkbox" id="exp-pdf"> PDF（列印格式）</button></label>
       </div>
       <button class="btn btn-primary" style="margin-top:14px;" onclick="exportInsurance()">一鍵產生保險資料</button>
     </div>
@@ -397,90 +393,85 @@
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbxjva8mwGHYRMorxt4FbYrpfTxNUKevVTwU5faqB9-yUQVUvuB6CHvADzlVzE45kIFw/exec';
-const ADMIN_PASSWORD = 'atlantis2025';
 
 let currentType = '', currentTeam = null, healthState = {};
 let cachedTeams = [], cachedRegs = [];
+let adminToken = null; // 登入後儲存 session token（記憶體，不寫入 HTML）
 
 // ── API ──
 async function api(payload) {
-  const res = await fetch(API, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
+  if (adminToken) payload._token = adminToken;
+  const res = await fetch(API, { method: 'POST', body: JSON.stringify(payload) });
   return res.json();
 }
 
 // ── Loading ──
-function showLoading(msg = '處理中…') {
-  document.getElementById('loadingMsg').textContent = msg;
-  document.getElementById('loadingMask').classList.add('show');
-}
+function showLoading(msg='處理中…') { document.getElementById('loadingMsg').textContent=msg; document.getElementById('loadingMask').classList.add('show'); }
 function hideLoading() { document.getElementById('loadingMask').classList.remove('show'); }
 
 // ── Nav ──
 function goPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id)?.classList.add('active');
   document.getElementById('admin-panel').classList.remove('active');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
 
 // ── Privacy ──
 function updateAgreeBtn() {
   const ok = document.getElementById('agreeCheck').checked;
   const btn = document.getElementById('agreeBtn');
-  btn.disabled = !ok; btn.style.opacity = ok ? '1' : '0.5';
+  btn.disabled=!ok; btn.style.opacity=ok?'1':'0.5';
 }
 function agreePrivacy() { loadSavedData(); goPage('page-type'); }
 function declinePrivacy() { goPage('page-decline'); }
 
 // ── Type ──
 function selectType(t) {
-  currentType = t;
-  document.getElementById('card-solo').classList.toggle('selected', t === 'solo');
-  document.getElementById('card-team').classList.toggle('selected', t === 'team');
-  document.getElementById('team-code-box').style.display = t === 'team' ? 'block' : 'none';
+  currentType=t;
+  document.getElementById('card-solo').classList.toggle('selected', t==='solo');
+  document.getElementById('card-team').classList.toggle('selected', t==='team');
+  document.getElementById('team-code-box').style.display = t==='team'?'block':'none';
 }
 
 async function proceedType() {
   if (!currentType) { alert('請選擇報名方式'); return; }
-  if (currentType === 'team') {
+  if (currentType==='team') {
     const code = document.getElementById('teamCodeInput').value.trim().toUpperCase();
-    if (!code) { document.getElementById('team-code-msg').innerHTML = '<span style="color:var(--warn)">請輸入團名代碼</span>'; return; }
+    if (!code) { document.getElementById('team-code-msg').innerHTML='<span style="color:var(--warn)">請輸入團名代碼</span>'; return; }
     showLoading('查詢團體中…');
     try {
-      const data = await api({ action: 'getTeams' });
+      const data = await api({ action:'getTeams' });
       hideLoading();
-      const team = (data.teams || []).find(t => t.code === code);
-      if (!team) { document.getElementById('team-code-msg').innerHTML = '<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>'; return; }
-      currentTeam = team;
-      document.getElementById('team-banner').style.display = 'block';
-      document.getElementById('team-banner-name').textContent = team.code + (team.desc ? ` (${team.desc})` : '');
+      const team = (data.teams||[]).find(t=>t.code===code);
+      if (!team) { document.getElementById('team-code-msg').innerHTML='<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>'; return; }
+      currentTeam=team;
+      document.getElementById('team-banner').style.display='block';
+      document.getElementById('team-banner-name').textContent=team.code+(team.desc?` (${team.desc})`:'');
     } catch(e) { hideLoading(); alert('網路錯誤，請稍後再試'); return; }
   } else {
-    currentTeam = null;
-    document.getElementById('team-banner').style.display = 'none';
+    currentTeam=null;
+    document.getElementById('team-banner').style.display='none';
   }
   goPage('page-basic');
 }
 
 // ── Saved data ──
 function loadSavedData() {
-  const saved = JSON.parse(localStorage.getItem('atl_user_data') || 'null');
+  const saved = JSON.parse(localStorage.getItem('atl_user_data')||'null');
   if (!saved) return;
-  ['name','id','dob','height','weight','foot','ballast','phone','time','gear','cert','dives','transport'].forEach(f => {
-    const el = document.getElementById('f-' + f);
-    if (el && saved[f]) el.value = saved[f];
+  ['name','dob','height','weight','foot','ballast','phone','time','gear','cert','dives','transport'].forEach(f=>{
+    const el=document.getElementById('f-'+f);
+    if (el&&saved[f]) el.value=saved[f];
   });
 }
 
 // ── Health ──
 function setHealth(key, val) {
-  healthState[key] = val;
-  document.getElementById(key+'-y').className = 'tog' + (val==='yes'?' yes':'');
-  document.getElementById(key+'-n').className = 'tog' + (val==='no'?' no':'');
-  document.getElementById('health-warning').style.display = Object.values(healthState).includes('yes') ? 'block' : 'none';
+  healthState[key]=val;
+  document.getElementById(key+'-y').className='tog'+(val==='yes'?' yes':'');
+  document.getElementById(key+'-n').className='tog'+(val==='no'?' no':'');
+  document.getElementById('health-warning').style.display=Object.values(healthState).includes('yes')?'block':'none';
 }
 
 function goHealth() {
@@ -495,63 +486,79 @@ function goHealth() {
 
 // ── Submit ──
 async function submitForm() {
-  const g = id => document.getElementById(id)?.value || '';
+  const g = id=>document.getElementById(id)?.value||'';
   const record = {
-    type: currentType, teamCode: currentTeam?.code || '',
-    name: g('f-name'), idNo: g('f-id'), dob: g('f-dob'),
-    height: g('f-height'), weight: g('f-weight'), foot: g('f-foot'),
-    ballast: g('f-ballast'), phone: g('f-phone'), diveDate: g('f-dive-date'),
-    time: g('f-time'), gear: g('f-gear'), cert: g('f-cert'),
-    dives: g('f-dives'), lastDive: g('f-last-dive'),
-    transport: g('f-transport'), notes: g('f-notes'),
-    health: {...healthState}
+    type:currentType, teamCode:currentTeam?.code||'',
+    name:g('f-name'), idNo:g('f-id'), dob:g('f-dob'),
+    height:g('f-height'), weight:g('f-weight'), foot:g('f-foot'),
+    ballast:g('f-ballast'), phone:g('f-phone'), diveDate:g('f-dive-date'),
+    time:g('f-time'), gear:g('f-gear'), cert:g('f-cert'),
+    dives:g('f-dives'), lastDive:g('f-last-dive'),
+    transport:g('f-transport'), notes:g('f-notes'),
+    health:{...healthState}
   };
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
   showLoading('正在送出報名資料…');
   try {
-    await api({ action: 'addRegistration', record });
-    // Save non-sensitive data locally for next time
-    const ud = {};
-    ['name','dob','height','weight','foot','ballast','phone','time','gear','cert','dives','transport'].forEach(f => { ud[f] = g('f-'+f); });
+    await api({ action:'addRegistration', record });
+    const ud={};
+    ['name','dob','height','weight','foot','ballast','phone','time','gear','cert','dives','transport'].forEach(f=>{ud[f]=g('f-'+f);});
     localStorage.setItem('atl_user_data', JSON.stringify(ud));
     hideLoading();
     document.getElementById('success-msg').textContent = currentTeam
       ? `您已成功加入「${currentTeam.code}」團！` : '您的個人報名已送出！';
     goPage('page-success');
-  } catch(e) {
-    hideLoading(); btn.disabled = false;
-    alert('送出失敗，請檢查網路後再試。');
-  }
+  } catch(e) { hideLoading(); btn.disabled=false; alert('送出失敗，請檢查網路後再試。'); }
 }
 
 function newForm() {
-  healthState = {}; currentType = ''; currentTeam = null;
-  document.querySelectorAll('.tog').forEach(t => t.className = 'tog');
-  document.getElementById('agreeCheck').checked = false;
+  healthState={}; currentType=''; currentTeam=null;
+  document.querySelectorAll('.tog').forEach(t=>t.className='tog');
+  document.getElementById('agreeCheck').checked=false;
   updateAgreeBtn();
   goPage('page-privacy');
 }
 
 // ── Admin ──
-function showAdminLogin() { document.getElementById('adminLoginModal').classList.add('show'); setTimeout(()=>document.getElementById('adminPwd').focus(),100); }
-function closeAdminLogin() { document.getElementById('adminLoginModal').classList.remove('show'); document.getElementById('admin-err').textContent=''; }
+function showAdminLogin() {
+  document.getElementById('adminLoginModal').classList.add('show');
+  setTimeout(()=>document.getElementById('adminPwd').focus(),100);
+}
+function closeAdminLogin() {
+  document.getElementById('adminLoginModal').classList.remove('show');
+  document.getElementById('admin-err').textContent='';
+  document.getElementById('adminPwd').value='';
+}
 
-function adminLogin() {
-  if (document.getElementById('adminPwd').value === ADMIN_PASSWORD) {
+async function adminLogin() {
+  const pwd = document.getElementById('adminPwd').value;
+  if (!pwd) return;
+  const btn = document.querySelector('#adminLoginModal .btn-primary');
+  btn.disabled=true;
+  showLoading('驗證中…');
+  try {
+    const data = await api({ action:'adminLogin', password:pwd });
+    hideLoading(); btn.disabled=false;
+    if (data.error==='unauthorized') {
+      document.getElementById('admin-err').textContent='密碼錯誤，請再試一次';
+      document.getElementById('adminPwd').value='';
+      return;
+    }
+    // 登入成功，把密碼存在記憶體中（不寫 HTML、不存 localStorage）
+    adminToken = pwd;
     closeAdminLogin();
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('admin-panel').classList.add('active');
     loadAdminData();
     window.scrollTo(0,0);
-  } else {
-    document.getElementById('admin-err').textContent = '密碼錯誤，請再試一次';
-  }
+  } catch(e) { hideLoading(); btn.disabled=false; alert('網路錯誤，請稍後再試'); }
 }
 
 function logoutAdmin() {
+  adminToken=null; // 清除記憶體中的密碼
+  cachedTeams=[]; cachedRegs=[];
   document.getElementById('admin-panel').classList.remove('active');
-  document.getElementById('adminPwd').value = '';
   goPage('page-privacy');
 }
 
@@ -567,8 +574,8 @@ function switchTab(id, el) {
 async function loadAdminData() {
   showLoading('載入資料中…');
   try {
-    const data = await api({ action: 'getTeams' });
-    cachedTeams = data.teams || [];
+    const data = await api({ action:'getTeamsAdmin', password:adminToken });
+    cachedTeams=data.teams||[];
     hideLoading();
     renderTeamsList();
     renderExportSel();
@@ -576,36 +583,36 @@ async function loadAdminData() {
 }
 
 async function loadAllRegs() {
-  const tbody = document.querySelector('#all-table tbody');
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr>';
+  const tbody=document.querySelector('#all-table tbody');
+  tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr>';
   try {
-    const data = await api({ action: 'getRegistrations' });
-    cachedRegs = data.registrations || [];
-    document.getElementById('all-count').textContent = cachedRegs.length;
-    tbody.innerHTML = cachedRegs.length ? cachedRegs.map(r=>`<tr>
+    const data = await api({ action:'getRegistrations', password:adminToken });
+    if (data.error==='unauthorized') { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--warn);">權限不足</td></tr>'; return; }
+    cachedRegs=data.registrations||[];
+    document.getElementById('all-count').textContent=cachedRegs.length;
+    tbody.innerHTML=cachedRegs.length?cachedRegs.map(r=>`<tr>
       <td style="font-size:0.78rem;color:var(--sub);">${r['時間戳記']||''}</td>
       <td>${r['姓名']||''}</td><td>${r['手機']||''}</td><td>${r['潛水日期']||''}</td>
       <td><span class="tag ${r['類型']==='團體'?'tag-team':'tag-solo'}">${r['類型']||''}</span></td>
       <td>${r['團名']||'-'}</td><td>${r['證照等級']||'-'}</td><td>${r['交通']||'-'}</td>
-    </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">尚無報名資料</td></tr>';
+    </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">尚無報名資料</td></tr>';
     renderExportSel();
-  } catch(e) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--warn);">載入失敗，請重試</td></tr>'; }
+  } catch(e) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--warn);">載入失敗，請重試</td></tr>'; }
 }
 
 async function createTeam() {
-  const code = document.getElementById('new-team-code').value.trim().toUpperCase();
-  const desc = document.getElementById('new-team-desc').value.trim();
+  const code=document.getElementById('new-team-code').value.trim().toUpperCase();
+  const desc=document.getElementById('new-team-desc').value.trim();
   if (!code) { alert('請輸入團名代碼'); return; }
   showLoading('建立團體中…');
   try {
-    const data = await api({ action: 'createTeam', code, desc });
+    const data=await api({ action:'createTeam', password:adminToken, code, desc });
     hideLoading();
-    if (data.error === 'exists') { alert('此代碼已存在，請使用其他代碼'); return; }
-    cachedTeams.push({ code, desc, createdAt: new Date().toLocaleString('zh-TW') });
-    document.getElementById('new-team-code').value = '';
-    document.getElementById('new-team-desc').value = '';
-    renderTeamsList();
-    renderExportSel();
+    if (data.error==='exists') { alert('此代碼已存在，請使用其他代碼'); return; }
+    cachedTeams.push({ code, desc, createdAt:new Date().toLocaleString('zh-TW') });
+    document.getElementById('new-team-code').value='';
+    document.getElementById('new-team-desc').value='';
+    renderTeamsList(); renderExportSel();
   } catch(e) { hideLoading(); alert('建立失敗，請稍後再試'); }
 }
 
@@ -613,19 +620,17 @@ async function deleteTeam(code) {
   if (!confirm(`確定要刪除「${code}」嗎？`)) return;
   showLoading('刪除中…');
   try {
-    await api({ action: 'deleteTeam', code });
-    cachedTeams = cachedTeams.filter(t=>t.code!==code);
-    hideLoading();
-    renderTeamsList();
-    renderExportSel();
+    await api({ action:'deleteTeam', password:adminToken, code });
+    cachedTeams=cachedTeams.filter(t=>t.code!==code);
+    hideLoading(); renderTeamsList(); renderExportSel();
   } catch(e) { hideLoading(); alert('刪除失敗'); }
 }
 
 function renderTeamsList() {
-  const el = document.getElementById('teams-list');
+  const el=document.getElementById('teams-list');
   if (!cachedTeams.length) { el.innerHTML='<p style="color:var(--sub);font-size:0.88rem;padding:10px 0;">尚未開立任何團體</p>'; return; }
-  el.innerHTML = cachedTeams.map(t => {
-    const members = cachedRegs.filter(r => r['團名']===t.code);
+  el.innerHTML=cachedTeams.map(t=>{
+    const members=cachedRegs.filter(r=>r['團名']===t.code);
     return `<div class="card" style="margin-top:10px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <strong>👥 ${t.code}</strong>
@@ -640,49 +645,46 @@ function renderTeamsList() {
 }
 
 function renderExportSel() {
-  const sel = document.getElementById('export-team-sel');
-  sel.innerHTML = '<option value="all">全部報名（個人 + 團體）</option>' +
+  const sel=document.getElementById('export-team-sel');
+  sel.innerHTML='<option value="all">全部報名（個人 + 團體）</option>'+
     cachedTeams.map(t=>`<option value="${t.code}">團體：${t.code}${t.desc?' ('+t.desc+')':''}</option>`).join('');
 }
 
 async function exportInsurance() {
-  const teamVal = document.getElementById('export-team-sel').value;
-  const doExcel = document.getElementById('exp-excel').checked;
-  const doTxt = document.getElementById('exp-txt').checked;
-  const doPdf = document.getElementById('exp-pdf').checked;
-  if (!doExcel && !doTxt && !doPdf) { alert('請至少選擇一種匯出格式'); return; }
-
+  const teamVal=document.getElementById('export-team-sel').value;
+  const doExcel=document.getElementById('exp-excel').checked;
+  const doTxt=document.getElementById('exp-txt').checked;
+  const doPdf=document.getElementById('exp-pdf').checked;
+  if (!doExcel&&!doTxt&&!doPdf) { alert('請至少選擇一種匯出格式'); return; }
   showLoading('從 Google Sheets 取得資料…');
   try {
-    const data = await api({ action: 'getRegistrations' });
+    const data=await api({ action:'getRegistrations', password:adminToken });
     hideLoading();
-    let regs = data.registrations || [];
-    if (teamVal !== 'all') regs = regs.filter(r => r['團名'] === teamVal);
+    let regs=data.registrations||[];
+    if (teamVal!=='all') regs=regs.filter(r=>r['團名']===teamVal);
     if (!regs.length) { alert('此選項尚無報名資料'); return; }
-
-    const headers = ['時間戳記','類型','團名','姓名','身分證','出生年月日','身高','體重','腳尺寸','配重','手機','潛水日期','時間','租借裝備','證照等級','潛水支數','上次潛水','交通','備註'];
-    const rows = regs.map(r => headers.map(h => r[h] || ''));
-    const label = teamVal === 'all' ? '全部' : teamVal;
-
+    const headers=['時間戳記','類型','團名','姓名','身分證','出生年月日','身高','體重','腳尺寸','配重','手機','潛水日期','時間','租借裝備','證照等級','潛水支數','上次潛水','交通','備註'];
+    const rows=regs.map(r=>headers.map(h=>r[h]||''));
+    const label=teamVal==='all'?'全部':teamVal;
     if (doExcel) {
-      const csv = [headers,...rows].map(r=>r.map(v=>`"${v.toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-      dl('\uFEFF'+csv, `保險資料_${label}.csv`, 'text/csv;charset=utf-8');
+      const csv=[headers,...rows].map(r=>r.map(v=>`"${v.toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+      dl('\uFEFF'+csv,`保險資料_${label}.csv`,'text/csv;charset=utf-8');
     }
     if (doTxt) {
-      const w = [20,6,12,10,12,12,6,6,6,6,12,12,8,8,14,6,12,12,16];
-      const pad = (s,n) => s.toString().substring(0,n).padEnd(n,' ');
-      const line = '─'.repeat(w.reduce((a,b)=>a+b+1,0));
-      let txt = `亞特蘭提斯潛水店 保險資料\n匯出：${new Date().toLocaleString('zh-TW')}\n${line}\n`;
-      txt += headers.map((h,i)=>pad(h,w[i])).join(' ')+'\n'+line+'\n';
+      const w=[20,6,12,10,12,12,6,6,6,6,12,12,8,8,14,6,12,12,16];
+      const pad=(s,n)=>s.toString().substring(0,n).padEnd(n,' ');
+      const line='─'.repeat(w.reduce((a,b)=>a+b+1,0));
+      let txt=`亞特蘭提斯潛水店 保險資料\n匯出：${new Date().toLocaleString('zh-TW')}\n${line}\n`;
+      txt+=headers.map((h,i)=>pad(h,w[i])).join(' ')+'\n'+line+'\n';
       rows.forEach(r=>{txt+=r.map((v,i)=>pad(v,w[i])).join(' ')+'\n';});
-      txt += line+`\n共 ${regs.length} 筆`;
-      dl(txt, `保險資料_${label}.txt`, 'text/plain;charset=utf-8');
+      txt+=line+`\n共 ${regs.length} 筆`;
+      dl(txt,`保險資料_${label}.txt`,'text/plain;charset=utf-8');
     }
     if (doPdf) {
-      const win = window.open('','_blank');
-      const trs = rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
+      const win=window.open('','_blank');
+      const trs=rows.map(r=>`<tr>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('');
       win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>保險資料</title>
-      <style>body{font-family:Arial,sans-serif;font-size:10px;padding:16px;}h2{margin-bottom:4px;}
+      <style>body{font-family:Arial,sans-serif;font-size:10px;padding:16px;}
       table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ccc;padding:3px 5px;}th{background:#e8f4fb;}
       button{margin-bottom:10px;padding:5px 14px;cursor:pointer;}@media print{button{display:none;}}</style></head><body>
       <h2>🤿 亞特蘭提斯潛水店 — 保險資料</h2>
@@ -696,9 +698,9 @@ async function exportInsurance() {
 }
 
 function dl(content, filename, mime) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content],{type:mime}));
-  a.download = filename; a.click();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:mime}));
+  a.download=filename; a.click();
 }
 </script>
 </body>
