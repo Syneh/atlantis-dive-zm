@@ -5,11 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>亞特蘭提斯潛水店</title>
 <style>
-  :root {
-    --ocean: #0077b6; --deep: #023e8a; --light: #90e0ef; --foam: #caf0f8;
-    --dark: #03045e; --warn: #e63946; --ok: #2dc653; --bg: #f0f9ff;
-    --card: #ffffff; --text: #1b2a3b; --sub: #5a7a8a;
-  }
+  :root { --ocean: #0077b6; --deep: #023e8a; --light: #90e0ef; --foam: #caf0f8; --dark: #03045e; --warn: #e63946; --ok: #2dc653; --bg: #f0f9ff; --card: #ffffff; --text: #1b2a3b; --sub: #5a7a8a; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
   header { background: linear-gradient(135deg, var(--dark), var(--ocean)); color: white; padding: 18px 24px; display: flex; align-items: center; gap: 14px; }
@@ -33,9 +29,7 @@
   .type-card strong { display: block; color: var(--deep); font-size: 0.95rem; }
   .type-card small { color: var(--sub); font-size: 0.78rem; }
   label { display: block; font-size: 0.85rem; color: var(--sub); margin-bottom: 4px; margin-top: 12px; font-weight: 600; }
-  input[type=text], input[type=date], input[type=tel], input[type=number], select, textarea {
-    width: 100%; padding: 9px 12px; border: 1.5px solid #d0e8f5; border-radius: 8px; font-size: 0.92rem; outline: none; transition: border 0.2s; background: #fff;
-  }
+  input[type=text], input[type=date], input[type=tel], input[type=number], select, textarea { width: 100%; padding: 9px 12px; border: 1.5px solid #d0e8f5; border-radius: 8px; font-size: 0.92rem; outline: none; transition: border 0.2s; background: #fff; }
   input:focus, select:focus, textarea:focus { border-color: var(--ocean); }
   textarea { resize: vertical; min-height: 70px; }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -47,7 +41,6 @@
   .tog { padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--light); cursor: pointer; font-size: 0.82rem; background: white; transition: all 0.15s; }
   .tog.yes { background: #ffd6d6; border-color: var(--warn); color: var(--warn); }
   .tog.no { background: #d6f5e0; border-color: var(--ok); color: #1a7a3a; }
-  .tog.unanswered { outline: 2px solid var(--warn); }
   .btn { display: inline-block; padding: 11px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
   .btn-primary { background: linear-gradient(135deg, var(--ocean), var(--deep)); color: white; width: 100%; }
   .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
@@ -93,7 +86,7 @@
 <div class="loading-mask" id="loadingMask"><div class="spinner"></div><p id="loadingMsg">處理中…</p></div>
 <header>
   <div class="logo">🤿</div>
-  <div><h1>亞特蘭提斯潛水店</h1><p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.5.1</span></p></div>
+  <div><h1>亞特蘭提斯潛水店</h1><p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.5.2</span></p></div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
 <div class="page active" id="page-privacy">
@@ -139,27 +132,14 @@
   <div class="card">
     <h2>📝 基本資料</h2>
     <div id="team-banner" style="display:none;" class="notice">📌 您正在報名團體：<strong id="team-banner-name"></strong></div>
-    <div class="row2">
-      <div><label>中文姓名 *</label><input type="text" id="f-name" placeholder="王小明"></div>
-      <div><label>身分證號碼 *</label><input type="text" id="f-id" placeholder="A123456789"></div>
-    </div>
+    <div class="row2"><div><label>中文姓名 *</label><input type="text" id="f-name" placeholder="王小明"></div><div><label>身分證號碼 *</label><input type="text" id="f-id" placeholder="A123456789"></div></div>
     <label>出生年月日 *</label><input type="date" id="f-dob">
-    <div class="row3">
-      <div><label>身高 (cm)</label><input type="number" id="f-height" placeholder="170"></div>
-      <div><label>體重 (kg)</label><input type="number" id="f-weight" placeholder="65"></div>
-      <div><label>腳尺寸 (cm)</label><input type="number" id="f-foot" placeholder="26"></div>
-    </div>
-    <div class="row2">
-      <div><label>配重 (kg)</label><input type="number" id="f-ballast" placeholder="4"></div>
-      <div><label>手機號碼 *</label><input type="tel" id="f-phone" placeholder="0912345678"></div>
-    </div>
+    <div class="row3"><div><label>身高 (cm)</label><input type="number" id="f-height" placeholder="170"></div><div><label>體重 (kg)</label><input type="number" id="f-weight" placeholder="65"></div><div><label>腳尺寸 (cm)</label><input type="number" id="f-foot" placeholder="26"></div></div>
+    <div class="row2"><div><label>配重 (kg)</label><input type="number" id="f-ballast" placeholder="4"></div><div><label>手機號碼 *</label><input type="tel" id="f-phone" placeholder="0912345678"></div></div>
     <div id="row-dive-date"><label id="label-dive-date">潛水日期 *</label><input type="date" id="f-dive-date"></div>
-    <div id="row-time-gear" style="margin-top:0;"><label>想要的時間</label><select id="f-time"><option value="">請選擇</option><option>上午場 (08:00)</option><option>下午場 (13:00)</option><option>全天</option></select></div>
+    <div id="row-time-gear"><label>想要的時間</label><select id="f-time"><option value="">請選擇</option><option>上午場 (08:00)</option><option>下午場 (13:00)</option><option>全天</option></select></div>
     <label>是否租借裝備</label><select id="f-gear"><option value="">請選擇</option><option>不需要</option><option>需要全套</option><option>部分租借</option></select>
-    <div class="row2">
-      <div><label>水肺潛水證照最高等級</label><select id="f-cert"><option value="">請選擇</option><option>無證照（初學）</option><option>Open Water / AOW</option><option>Rescue Diver</option><option>Divemaster</option><option>Instructor</option><option>其他</option></select></div>
-      <div><label>潛水支數</label><input type="number" id="f-dives" placeholder="0"></div>
-    </div>
+    <div class="row2"><div><label>水肺潛水證照最高等級</label><select id="f-cert"><option value="">請選擇</option><option>無證照（初學）</option><option>Open Water / AOW</option><option>Rescue Diver</option><option>Divemaster</option><option>Instructor</option><option>其他</option></select></div><div><label>潛水支數</label><input type="number" id="f-dives" placeholder="0"></div></div>
     <label>上一次潛水時間</label><input type="date" id="f-last-dive">
     <div id="row-transport"><label>是否需要安排東北角交通</label><select id="f-transport"><option value="">請選擇</option><option>不需要，自行前往</option><option>需要，請幫我安排</option></select></div>
     <label>其他想說的話</label><textarea id="f-notes" placeholder="特殊需求、問題或備註…"></textarea>
@@ -199,10 +179,7 @@
   </div>
 </div>
 <div class="admin-page" id="admin-panel">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <h2 style="color:var(--deep);font-size:1.3rem;">🛠️ 店長後台</h2>
-    <button class="btn btn-outline btn-sm" onclick="logoutAdmin()">登出</button>
-  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;"><h2 style="color:var(--deep);font-size:1.3rem;">🛠️ 店長後台</h2><button class="btn btn-outline btn-sm" onclick="logoutAdmin()">登出</button></div>
   <div class="admin-tabs">
     <div class="admin-tab active" onclick="switchTab('tab-teams',this)">👥 團體管理</div>
     <div class="admin-tab" onclick="switchTab('tab-all',this)">📋 全部報名</div>
@@ -211,10 +188,7 @@
   <div id="tab-teams" class="tab-content">
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;"><h3 style="margin:0;">➕ 開立新團</h3><button class="btn btn-outline btn-sm" onclick="loadAdminData()">🔄 重新整理</button></div>
-      <div class="row2">
-        <div><label>團名代碼 *</label><input type="text" id="new-team-code" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()"></div>
-        <div><label>團體說明（可選）</label><input type="text" id="new-team-desc" placeholder="例如：暑假班"></div>
-      </div>
+      <div class="row2"><div><label>團名代碼 *</label><input type="text" id="new-team-code" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()"></div><div><label>團體說明（可選）</label><input type="text" id="new-team-desc" placeholder="例如：暑假班"></div></div>
       <div class="row2"><div><label>成團日期 *</label><input type="date" id="new-team-date"></div></div>
       <button class="btn btn-primary" style="margin-top:12px;width:auto;padding:10px 24px;" onclick="createTeam()">開立團體</button>
     </div>
@@ -239,6 +213,7 @@
 const API='https://script.google.com/macros/s/AKfycbxjva8mwGHYRMorxt4FbYrpfTxNUKevVTwU5faqB9-yUQVUvuB6CHvADzlVzE45kIFw/exec';
 const HEALTH_KEYS=['h1','h2','h3','h4','h5','h6'];
 let currentType='',currentTeam=null,healthState={},cachedTeams=[],cachedRegs=[],adminToken=null;
+
 async function api(p){if(adminToken)p.password=adminToken;const r=await fetch(API,{method:'POST',body:JSON.stringify(p)});return r.json();}
 function showLoading(m='處理中…'){document.getElementById('loadingMsg').textContent=m;document.getElementById('loadingMask').classList.add('show');}
 function hideLoading(){document.getElementById('loadingMask').classList.remove('show');}
@@ -246,19 +221,16 @@ function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.re
 function updateAgreeBtn(){const ok=document.getElementById('agreeCheck').checked;const btn=document.getElementById('agreeBtn');btn.disabled=!ok;btn.style.opacity=ok?'1':'0.5';}
 function agreePrivacy(){loadSavedData();goPage('page-type');}
 function declinePrivacy(){goPage('page-decline');}
-function selectType(t){currentType=t;document.getElementById('card-solo').classList.toggle('selected',t==='solo');document.getElementById('card-team').classList.toggle('selected',t==='team');document.getElementById('team-code-box').style.display=t==='team'?'block':'none';}
+function selectType(t){currentType=t;document.getElementById('card-solo').classList.toggle('selected',t==='solo');document.getElementById('card-team').classList.toggle('selected',t==='team');document.getElementById('team-code-box').style.display=(t==='team')?'block':'none';}
 async function proceedType(){
   if(!currentType){alert('請選擇報名方式');return;}
   if(currentType==='team'){
     const code=document.getElementById('teamCodeInput').value.trim().toUpperCase();
     if(!code){document.getElementById('team-code-msg').innerHTML='<span style="color:var(--warn)">請輸入團名代碼</span>';return;}
     showLoading('查詢團體中…');
-    try{
-      const data=await api({action:'getTeams'});hideLoading();
-      const team=(data.teams||[]).find(t=>String(t.code).trim()===String(code).trim());
+    try{const data=await api({action:'getTeams'});hideLoading();const team=(data.teams||[]).find(t=>String(t.code).trim()===String(code).trim());
       if(!team){document.getElementById('team-code-msg').innerHTML='<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>';return;}
-      currentTeam=team;
-      document.getElementById('team-banner').style.display='block';
+      currentTeam=team;document.getElementById('team-banner').style.display='block';
       document.getElementById('team-banner-name').textContent=team.code+(team.desc?' ('+team.desc+')':'')+(team.date?' 📅 '+team.date:'');
     }catch(e){hideLoading();alert('網路錯誤，請稍後再試');return;}
   }else{currentTeam=null;document.getElementById('team-banner').style.display='none';}
@@ -280,16 +252,12 @@ function goHealth(){
   const isTeam=currentType==='team';
   const req=isTeam?['f-name','f-id','f-dob','f-phone']:['f-name','f-id','f-dob','f-phone','f-dive-date'];
   for(let id of req){if(!document.getElementById(id).value.trim()){alert('請填寫所有必填欄位（標有 * 的欄位）');document.getElementById(id).focus();return;}}
-  healthState={};
-  HEALTH_KEYS.forEach(k=>{const y=document.getElementById(k+'-y'),n=document.getElementById(k+'-n');y.className='tog';n.className='tog';y.style.outline='';n.style.outline='';});
-  document.getElementById('health-warning').style.display='none';
-  goPage('page-health');
+  healthState={};HEALTH_KEYS.forEach(k=>{const y=document.getElementById(k+'-y'),n=document.getElementById(k+'-n');y.className='tog';n.className='tog';y.style.outline='';n.style.outline='';});
+  document.getElementById('health-warning').style.display='none';goPage('page-health');
 }
 function setHealth(key,val){
-  healthState[key]=val;
-  const y=document.getElementById(key+'-y'),n=document.getElementById(key+'-n');
-  y.className='tog'+(val==='yes'?' yes':'');n.className='tog'+(val==='no'?' no':'');
-  y.style.outline='';n.style.outline='';
+  healthState[key]=val;const y=document.getElementById(key+'-y'),n=document.getElementById(key+'-n');
+  y.className='tog'+(val==='yes'?' yes':'');n.className='tog'+(val==='no'?' no':'');y.style.outline='';n.style.outline='';
   document.getElementById('health-warning').style.display=HEALTH_KEYS.some(k=>healthState[k]==='yes')?'block':'none';
 }
 function checkAndSubmit(){
@@ -331,9 +299,7 @@ async function loadAllRegs(){
   }catch(e){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--warn);">載入失敗，請重試</td></tr>';}
 }
 async function createTeam(){
-  const code=document.getElementById('new-team-code').value.trim().toUpperCase();
-  const desc=document.getElementById('new-team-desc').value.trim();
-  const date=document.getElementById('new-team-date').value;
+  const code=document.getElementById('new-team-code').value.trim().toUpperCase();const desc=document.getElementById('new-team-desc').value.trim();const date=document.getElementById('new-team-date').value;
   if(!code){alert('請輸入團名代碼');return;}if(!date){alert('請選擇成團日期');return;}
   showLoading('建立團體中…');
   try{const data=await api({action:'createTeam',code,desc,date});hideLoading();if(data.error==='exists'){alert('此代碼已存在，請使用其他代碼');return;}cachedTeams.push({code,desc,date,createdAt:new Date().toLocaleString('zh-TW')});document.getElementById('new-team-code').value='';document.getElementById('new-team-desc').value='';document.getElementById('new-team-date').value='';renderTeamsList();renderExportSel();}
@@ -348,16 +314,13 @@ function formatDisplayDate(val){if(!val)return'';try{const d=new Date(val);if(is
 function renderTeamsList(){
   const el=document.getElementById('teams-list');
   if(!cachedTeams.length){el.innerHTML='<p style="color:var(--sub);font-size:0.88rem;padding:10px 0;">尚未開立任何團體</p>';return;}
-  el.innerHTML=cachedTeams.map(t=>{
-    const tCode=String(t.code).trim();
-    const members=cachedRegs.filter(r=>String(r['團名']).trim()===tCode);
+  el.innerHTML=cachedTeams.map(t=>{const tCode=String(t.code).trim();const members=cachedRegs.filter(r=>String(r['團名']).trim()===tCode);
     return'<div class="card" style="margin-top:10px;"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><strong>👥 '+t.code+'</strong>'+(t.desc?'<span style="color:var(--sub);font-size:0.85rem;">'+t.desc+'</span>':'')+'<span class="badge">'+members.length+' 人</span><button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="deleteTeam(''+t.code+'')">刪除</button></div><p style="font-size:0.78rem;color:var(--sub);margin-top:4px;">成團日期：'+(t.date||'未設定')+' ｜ 建立時間：'+formatDisplayDate(t.createdAt)+'</p>'+(members.length?'<ul class="team-list" style="margin-top:10px;">'+members.map(m=>'<li><span>'+m['姓名']+'（'+m['手機']+'）</span><span style="color:var(--sub);font-size:0.78rem;">'+m['潛水日期']+'</span></li>').join('')+'</ul>':'<p style="font-size:0.82rem;color:var(--sub);margin-top:8px;">尚無成員</p>')+'</div>';
   }).join('');
 }
 function renderExportSel(){const sel=document.getElementById('export-team-sel');sel.innerHTML='<option value="all">全部報名（個人 + 團體）</option>'+cachedTeams.map(t=>'<option value="'+t.code+'">團體：'+t.code+(t.desc?' ('+t.desc+')':'')+'</option>').join('');}
 async function exportInsurance(){
-  const tv=document.getElementById('export-team-sel').value;
-  const doE=document.getElementById('exp-excel').checked,doT=document.getElementById('exp-txt').checked,doP=document.getElementById('exp-pdf').checked;
+  const tv=document.getElementById('export-team-sel').value;const doE=document.getElementById('exp-excel').checked,doT=document.getElementById('exp-txt').checked,doP=document.getElementById('exp-pdf').checked;
   if(!doE&&!doT&&!doP){alert('請至少選擇一種匯出格式');return;}
   showLoading('從 Google Sheets 取得資料…');
   try{const data=await api({action:'getRegistrations'});hideLoading();let regs=data.registrations||[];if(tv!=='all')regs=regs.filter(r=>String(r['團名']).trim()===tv);if(!regs.length){alert('此選項尚無報名資料');return;}
@@ -377,6 +340,13 @@ async function exportInsurance(){
   }catch(e){hideLoading();alert('取得資料失敗，請稍後再試');}
 }
 function dl(c,f,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();}
+// 將所有互動函式掛到 window，確保 HTML onclick 可正確呼叫
+window.updateAgreeBtn=updateAgreeBtn;window.agreePrivacy=agreePrivacy;window.declinePrivacy=declinePrivacy;
+window.selectType=selectType;window.proceedType=proceedType;window.goHealth=goHealth;
+window.setHealth=setHealth;window.checkAndSubmit=checkAndSubmit;window.newForm=newForm;
+window.showAdminLogin=showAdminLogin;window.closeAdminLogin=closeAdminLogin;window.adminLogin=adminLogin;
+window.logoutAdmin=logoutAdmin;window.switchTab=switchTab;window.loadAdminData=loadAdminData;
+window.loadAllRegs=loadAllRegs;window.createTeam=createTeam;window.deleteTeam=deleteTeam;window.exportInsurance=exportInsurance;
 </script>
 </body>
 </html>
