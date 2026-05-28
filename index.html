@@ -431,7 +431,7 @@ async function proceedType() {
     try {
       const data = await api({ action:'getTeams' });
       hideLoading();
-      const team = (data.teams||[]).find(t => t.code===code);
+      const team = (data.teams||[]).find(t => String(t.code).trim()===String(code).trim());
       if (!team) { document.getElementById('team-code-msg').innerHTML = '<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>'; return; }
       currentTeam = team;
       document.getElementById('team-banner').style.display = 'block';
