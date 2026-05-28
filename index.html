@@ -481,11 +481,22 @@ function goHealth() {
       document.getElementById(id).focus(); return;
     }
   }
+  // 重置健康聲明
+  healthState = {};
+  document.querySelectorAll('.tog').forEach(t => t.className = 'tog');
+  document.getElementById('health-warning').style.display = 'none';
   goPage('page-health');
 }
 
 // ── Submit ──
 async function submitForm() {
+  // 檢查六個健康聲明是否都已填寫
+  const healthKeys = ['h1','h2','h3','h4','h5','h6'];
+  const unanswered = healthKeys.filter(k => !healthState[k]);
+  if (unanswered.length > 0) {
+    alert(`請完整填寫所有健康聲明項目（尚有 ${unanswered.length} 項未選擇）`);
+    return;
+  }
   const g = id=>document.getElementById(id)?.value||'';
   const record = {
     type:currentType, teamCode:currentTeam?.code||'',
