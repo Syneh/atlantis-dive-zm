@@ -574,12 +574,17 @@ function switchTab(id, el) {
 async function loadAdminData() {
   showLoading('載入資料中…');
   try {
-    const data = await api({ action:'getTeamsAdmin', password:adminToken });
-    cachedTeams=data.teams||[];
+    // 同時載入團體和報名資料
+    const [teamData, regData] = await Promise.all([
+      api({ action:'getTeamsAdmin', password:adminToken }),
+      api({ action:'getRegistrations', password:adminToken })
+    ]);
+    cachedTeams = teamData.teams || [];
+    cachedRegs = regData.registrations || [];
     hideLoading();
     renderTeamsList();
     renderExportSel();
-  } catch(e) { hideLoading(); }
+  } catch(e) { hideLoading(); alert('載入失敗，請重新整理頁面'); }
 }
 
 async function loadAllRegs() {
