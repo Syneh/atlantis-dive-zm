@@ -297,7 +297,7 @@
       ⚠️ 您有填寫「是」的健康項目，建議在潛水前諮詢醫師，並告知教練您的狀況。
     </div>
   </div>
-  <button class="btn btn-primary" id="submitBtn" onclick="checkAndSubmit()" style="opacity:1;">✅ 確認送出報名</button>
+  <button class="btn btn-primary" id="submitBtn" onclick="checkAndSubmit()" style="opacity:1; position:relative; z-index:1;">✅ 確認送出報名</button>
 </div>
 
 <!-- Page: Success -->
@@ -494,9 +494,26 @@ function checkAndSubmit() {
   const unanswered = healthKeys.filter(k => !healthState[k]);
   if (unanswered.length > 0) {
     alert(`請完整填寫所有健康聲明項目（尚有 ${unanswered.length} 項未選擇）`);
+    // 把未填的項目標紅提示
+    unanswered.forEach(k => {
+      document.getElementById(k+'-y').style.borderColor = 'var(--warn)';
+      document.getElementById(k+'-n').style.borderColor = 'var(--warn)';
+    });
     return;
   }
   submitForm();
+}
+
+function setHealth(key, val) {
+  healthState[key] = val;
+  const yBtn = document.getElementById(key+'-y');
+  const nBtn = document.getElementById(key+'-n');
+  yBtn.className = 'tog' + (val==='yes' ? ' yes' : '');
+  nBtn.className = 'tog' + (val==='no' ? ' no' : '');
+  // 清除紅色邊框提示
+  yBtn.style.borderColor = '';
+  nBtn.style.borderColor = '';
+  document.getElementById('health-warning').style.display = Object.values(healthState).includes('yes') ? 'block' : 'none';
 }
 
 async function submitForm() {
@@ -522,7 +539,7 @@ async function submitForm() {
     document.getElementById('success-msg').textContent = currentTeam
       ? `您已成功加入「${currentTeam.code}」團！` : '您的個人報名已送出！';
     goPage('page-success');
-  } catch(e) { hideLoading(); btn.disabled=false; alert('送出失敗，請檢查網路後再試。'); }
+  } catch(e) { hideLoading(); btn.disabled=false; btn.style.opacity='1'; alert('送出失敗，請檢查網路後再試。'); }
 }
 
 function newForm() {
