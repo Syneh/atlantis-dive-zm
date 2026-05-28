@@ -466,12 +466,15 @@ function loadSavedData() {
   });
 }
 
-// ── Health ──
 function setHealth(key, val) {
-  healthState[key]=val;
-  document.getElementById(key+'-y').className='tog'+(val==='yes'?' yes':'');
-  document.getElementById(key+'-n').className='tog'+(val==='no'?' no':'');
-  document.getElementById('health-warning').style.display=Object.values(healthState).includes('yes')?'block':'none';
+  healthState[key] = val;
+  const yBtn = document.getElementById(key+'-y');
+  const nBtn = document.getElementById(key+'-n');
+  yBtn.className = 'tog' + (val==='yes' ? ' yes' : '');
+  nBtn.className = 'tog' + (val==='no' ? ' no' : '');
+  yBtn.style.outline = '';
+  nBtn.style.outline = '';
+  document.getElementById('health-warning').style.display = Object.values(healthState).includes('yes') ? 'block' : 'none';
 }
 
 function goHealth() {
@@ -493,27 +496,14 @@ function checkAndSubmit() {
   const healthKeys = ['h1','h2','h3','h4','h5','h6'];
   const unanswered = healthKeys.filter(k => !healthState[k]);
   if (unanswered.length > 0) {
-    alert(`請完整填寫所有健康聲明項目（尚有 ${unanswered.length} 項未選擇）`);
-    // 把未填的項目標紅提示
     unanswered.forEach(k => {
-      document.getElementById(k+'-y').style.borderColor = 'var(--warn)';
-      document.getElementById(k+'-n').style.borderColor = 'var(--warn)';
+      document.getElementById(k+'-y').style.outline = '2px solid var(--warn)';
+      document.getElementById(k+'-n').style.outline = '2px solid var(--warn)';
     });
+    alert(`請完整填寫所有健康聲明項目（尚有 ${unanswered.length} 項未選擇）`);
     return;
   }
   submitForm();
-}
-
-function setHealth(key, val) {
-  healthState[key] = val;
-  const yBtn = document.getElementById(key+'-y');
-  const nBtn = document.getElementById(key+'-n');
-  yBtn.className = 'tog' + (val==='yes' ? ' yes' : '');
-  nBtn.className = 'tog' + (val==='no' ? ' no' : '');
-  // 清除紅色邊框提示
-  yBtn.style.borderColor = '';
-  nBtn.style.borderColor = '';
-  document.getElementById('health-warning').style.display = Object.values(healthState).includes('yes') ? 'block' : 'none';
 }
 
 async function submitForm() {
