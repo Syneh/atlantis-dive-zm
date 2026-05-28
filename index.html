@@ -100,7 +100,7 @@
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.4.3</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.5.0</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -646,6 +646,15 @@ function switchTab(id, el) {
 }
 
 // ── Admin Data ──
+function formatDisplayDate(val) {
+  if (!val) return '';
+  try {
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return String(val);
+    return d.toLocaleString('zh-TW');
+  } catch(e) { return String(val); }
+}
+
 async function loadAdminData() {
   showLoading('載入資料中…');
   try {
@@ -726,7 +735,7 @@ function renderTeamsList() {
         <span class="badge">${members.length} 人</span>
         <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="deleteTeam('${t.code}')">刪除</button>
       </div>
-      <p style="font-size:0.78rem;color:var(--sub);margin-top:4px;">成團日期：${t.date||'未設定'} ｜ 建立時間：${t.createdAt||''}</p>
+      <p style="font-size:0.78rem;color:var(--sub);margin-top:4px;">成團日期：${t.date||'未設定'} ｜ 建立時間：${formatDisplayDate(t.createdAt)}</p>
       ${members.length
         ? `<ul class="team-list" style="margin-top:10px;">${members.map(m=>`<li><span>${m['姓名']}（${m['手機']}）</span><span style="color:var(--sub);font-size:0.78rem;">${m['潛水日期']}</span></li>`).join('')}</ul>`
         : '<p style="font-size:0.82rem;color:var(--sub);margin-top:8px;">尚無成員</p>'}
