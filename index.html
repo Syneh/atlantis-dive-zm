@@ -331,7 +331,7 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
     <div>
       <h2 style="color:var(--deep);font-size:1.3rem;">🛠️ 店長後台</h2>
-      <p style="font-size:0.75rem;color:var(--sub);margin-top:3px;">v1.4.1</p>
+      <p style="font-size:0.75rem;color:var(--sub);margin-top:3px;">v1.4.2</p>
     </div>
     <button class="btn btn-outline btn-sm" onclick="logoutAdmin()">登出</button>
   </div>
@@ -342,7 +342,10 @@
   </div>
   <div id="tab-teams" class="tab-content">
     <div class="card">
-      <h3>➕ 開立新團</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <h3 style="margin:0;">➕ 開立新團</h3>
+        <button class="btn btn-outline btn-sm" onclick="loadAdminData()">🔄 重新整理</button>
+      </div>
       <div class="row2">
         <div><label>團名代碼 *</label><input type="text" id="new-team-code" placeholder="例如：TEAM2025A" oninput="this.value=this.value.toUpperCase()"></div>
         <div><label>團體說明（可選）</label><input type="text" id="new-team-desc" placeholder="例如：暑假班"></div>
