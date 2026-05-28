@@ -297,7 +297,7 @@
       ⚠️ 您有填寫「是」的健康項目，建議在潛水前諮詢醫師，並告知教練您的狀況。
     </div>
   </div>
-  <button class="btn btn-primary" id="submitBtn" onclick="submitForm()" style="opacity:1;">✅ 確認送出報名</button>
+  <button class="btn btn-primary" id="submitBtn" onclick="checkAndSubmit()" style="opacity:1;">✅ 確認送出報名</button>
 </div>
 
 <!-- Page: Success -->
@@ -489,15 +489,17 @@ function goHealth() {
 }
 
 // ── Submit ──
-async function submitForm() {
-  // 檢查六個健康聲明是否都已填寫
+function checkAndSubmit() {
   const healthKeys = ['h1','h2','h3','h4','h5','h6'];
   const unanswered = healthKeys.filter(k => !healthState[k]);
   if (unanswered.length > 0) {
     alert(`請完整填寫所有健康聲明項目（尚有 ${unanswered.length} 項未選擇）`);
     return;
   }
-  const g = id=>document.getElementById(id)?.value||'';
+  submitForm();
+}
+
+async function submitForm() {
   const record = {
     type:currentType, teamCode:currentTeam?.code||'',
     name:g('f-name'), idNo:g('f-id'), dob:g('f-dob'),
