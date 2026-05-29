@@ -790,12 +790,40 @@ function openFubonInsurance(){
   showInsuranceHelper(members,team);
 }
 function showInsuranceHelper(members,team){
-  const old=document.getElementById('insuranceHelper');if(old)old.remove();
-  const div=document.createElement('div');
+  var old=document.getElementById('insuranceHelper');
+  if(old)old.remove();
+  var div=document.createElement('div');
   div.id='insuranceHelper';
-  div.style.cssText='position:fixed;bottom:20px;right:20px;width:340px;max-height:500px;background:white;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.25);z-index:9999;overflow:hidden;';
-  div.innerHTML='<div style="background:linear-gradient(135deg,#e84393,#c0006e);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:700;font-size:0.92rem;">🏊 富邦海域險 被保險人資料</span><button onclick="document.getElementById('insuranceHelper').remove()" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button></div><div style="padding:12px;overflow-y:auto;max-height:420px;"><p style="font-size:0.82rem;color:#666;margin-bottom:10px;">團體：<strong>'+(team?team.code:'')+(team&&team.desc?' - '+team.desc:'')+'</strong><br>活動日期：<strong>'+(team&&team.date?team.date:'未設定')+'</strong><br>投保人數：<strong>'+members.length+' 人</strong></p><table style="width:100%;font-size:0.8rem;border-collapse:collapse;"><thead><tr style="background:#f0f9ff;"><th style="padding:5px;text-align:left;">姓名</th><th style="padding:5px;">身分證</th><th style="padding:5px;">生日</th></tr></thead><tbody>'+members.map((m,i)=>'<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">'+(i+1)+'. '+(m['姓名']||'')+'</td><td style="padding:5px;">'+(m['身分證']||'')+'</td><td style="padding:5px;">'+(m['出生年月日']||'')+'</td></tr>').join('')+'</tbody></table><p style="font-size:0.75rem;color:#999;margin-top:10px;">在富邦投保頁面逐一填入以上資料後完成付款</p></div>';
-  document.body.appendChild(div);
+  div.style.position='fixed';div.style.bottom='20px';div.style.right='20px';
+  div.style.width='340px';div.style.maxHeight='500px';div.style.background='white';
+  div.style.borderRadius='14px';div.style.boxShadow='0 4px 24px rgba(0,0,0,0.25)';
+  div.style.zIndex='9999';div.style.overflow='hidden';
+  var hdr=document.createElement('div');
+  hdr.style.background='linear-gradient(135deg,#e84393,#c0006e)';
+  hdr.style.color='white';hdr.style.padding='12px 16px';
+  hdr.style.display='flex';hdr.style.alignItems='center';hdr.style.justifyContent='space-between';
+  var title=document.createElement('span');
+  title.style.fontWeight='700';title.style.fontSize='0.92rem';
+  title.textContent='🏊 富邦海域險 被保險人資料';
+  var closeBtn=document.createElement('button');
+  closeBtn.textContent='✕';closeBtn.style.background='none';closeBtn.style.border='none';
+  closeBtn.style.color='white';closeBtn.style.fontSize='1.2rem';closeBtn.style.cursor='pointer';
+  closeBtn.onclick=function(){document.getElementById('insuranceHelper').remove();};
+  hdr.appendChild(title);hdr.appendChild(closeBtn);div.appendChild(hdr);
+  var body=document.createElement('div');
+  body.style.padding='12px';body.style.overflowY='auto';body.style.maxHeight='420px';
+  var info=document.createElement('p');
+  info.style.fontSize='0.82rem';info.style.color='#666';info.style.marginBottom='10px';
+  info.innerHTML='團體：<strong>'+(team?team.code:'')+(team&&team.desc?' - '+team.desc:'')+'</strong><br>活動日期：<strong>'+(team&&team.date?team.date:'未設定')+'</strong><br>投保人數：<strong>'+members.length+' 人</strong>';
+  body.appendChild(info);
+  var tbl=document.createElement('table');
+  tbl.style.width='100%';tbl.style.fontSize='0.8rem';tbl.style.borderCollapse='collapse';
+  tbl.innerHTML='<thead><tr style="background:#f0f9ff"><th style="padding:5px;text-align:left">姓名</th><th style="padding:5px">身分證</th><th style="padding:5px">生日</th></tr></thead><tbody>'+members.map(function(m,i){return '<tr style="border-bottom:1px solid #eee"><td style="padding:5px">'+(i+1)+'. '+(m['姓名']||'')+'</td><td style="padding:5px">'+(m['身分證']||'')+'</td><td style="padding:5px">'+(m['出生年月日']||'')+'</td></tr>';}).join('')+'</tbody>';
+  body.appendChild(tbl);
+  var note=document.createElement('p');
+  note.style.fontSize='0.75rem';note.style.color='#999';note.style.marginTop='10px';
+  note.textContent='在富邦投保頁面逐一填入以上資料後完成付款';
+  body.appendChild(note);div.appendChild(body);document.body.appendChild(div);
 }
 window.updateAgreeBtn=updateAgreeBtn;window.agreePrivacy=agreePrivacy;window.declinePrivacy=declinePrivacy;
 window.selectType=selectType;window.proceedType=proceedType;window.goHealth=goHealth;
