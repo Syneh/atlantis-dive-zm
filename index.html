@@ -100,7 +100,7 @@
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.5.4</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.5.5</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -679,8 +679,8 @@ async function loadAllRegs() {
     document.getElementById('all-count').textContent = cachedRegs.length;
     tbody.innerHTML = cachedRegs.length
       ? cachedRegs.map(r => `<tr>
-          <td style="font-size:0.78rem;color:var(--sub);">${r['時間戳記']||''}</td>
-          <td>${r['姓名']||''}</td><td>${r['手機']||''}</td><td>${r['潛水日期']||''}</td>
+          <td style="font-size:0.78rem;color:var(--sub);">${formatDisplayDate(r['時間戳記'])}</td>
+          <td>${r['姓名']||''}</td><td>${r['手機']||''}</td><td>${formatDisplayDate(r['潛水日期'])}</td>
           <td><span class="tag ${r['類型']==='團體'?'tag-team':'tag-solo'}">${r['類型']||''}</span></td>
           <td>${r['團名']||'-'}</td><td>${r['證照等級']||'-'}</td><td>${r['交通']||'-'}</td>
         </tr>`).join('')
