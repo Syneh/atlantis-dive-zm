@@ -371,15 +371,27 @@
   <div id="tab-export" class="tab-content" style="display:none;">
     <div class="card">
       <h3>📤 保險資料匯出</h3>
-      <label>選擇團體</label>
-      <select id="export-team-sel"><option value="all">全部報名（個人 + 團體）</option></select>
-      <div class="export-opts" style="margin-top:14px;">
-        <strong style="font-size:0.88rem;">匯出格式：</strong>
-        <label><input type="checkbox" id="exp-excel" checked> Excel (.csv)</label>
-        <label><input type="checkbox" id="exp-txt"> 純文字 (.txt)</label>
-        <label><input type="checkbox" id="exp-pdf"> PDF（列印格式）</label>
-      </div>
+      <label>選擇團體</label><select id="export-team-sel"><option value="all">全部報名（個人 + 團體）</option></select>
+      <div class="export-opts" style="margin-top:14px;"><strong style="font-size:0.88rem;">匯出格式：</strong><label><input type="checkbox" id="exp-excel" checked> Excel (.csv)</label><label><input type="checkbox" id="exp-txt"> 純文字 (.txt)</label><label><input type="checkbox" id="exp-pdf"> PDF（列印格式）</label></div>
       <button class="btn btn-primary" style="margin-top:14px;" onclick="exportInsurance()">一鍵產生保險資料</button>
+    </div>
+    <div class="card" style="margin-top:14px;border:2px solid #0077b6;">
+      <h3>🏊 富邦產險 海域活動綜合保險</h3>
+      <p style="font-size:0.85rem;color:var(--sub);margin-bottom:12px;">選擇團體後，一鍵開啟富邦產險投保頁面，右下角顯示被保險人資料供對照填入。</p>
+      <label>選擇要投保的團體</label>
+      <select id="fubon-team-sel" onchange="previewFubonMembers(this.value)"><option value="">請選擇團體</option></select>
+      <label style="margin-top:12px;">活動類別</label>
+      <select id="fubon-category">
+        <option value="SEA1">第1類（潛水、衝浪、浮潛、風浪板、磯釣等）</option>
+        <option value="SEA2">第2類（游泳、拖曳傘、獨木舟、立式划槳等）</option>
+        <option value="SEA12">第1類＋第2類（推薦）</option>
+      </select>
+      <div id="fubon-member-preview" style="display:none;margin-top:14px;">
+        <p style="font-size:0.85rem;font-weight:600;color:var(--deep);margin-bottom:8px;">📋 被保險人名單預覽</p>
+        <div id="fubon-member-list" style="background:var(--foam);border-radius:8px;padding:12px;font-size:0.83rem;max-height:200px;overflow-y:auto;"></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:14px;background:linear-gradient(135deg,#e84393,#c0006e);" onclick="openFubonInsurance()">🚀 一鍵開啟富邦產險投保</button>
+      <p style="font-size:0.78rem;color:var(--sub);margin-top:8px;">※ 新視窗開啟投保頁，右下角顯示被保險人資料供對照填入。</p>
     </div>
   </div>
 </div>
@@ -743,65 +755,56 @@ function renderTeamsList() {
   }).join('');
 }
 
-function renderExportSel() {
-  const sel = document.getElementById('export-team-sel');
-  sel.innerHTML = '<option value="all">全部報名（個人 + 團體）</option>' +
-    cachedTeams.map(t => `<option value="${t.code}">團體：${t.code}${t.desc?' ('+t.desc+')':''}</option>`).join('');
+function renderExportSel(){
+  const sel=document.getElementById('export-team-sel');
+  sel.innerHTML='<option value="all">全部報名（個人 + 團體）</option>'+cachedTeams.map(t=>'<option value="'+t.code+'">團體：'+t.code+(t.desc?' ('+t.desc+')':'')+'</option>').join('');
+  const fs=document.getElementById('fubon-team-sel');
+  if(fs){fs.innerHTML='<option value="">請選擇團體</option>'+cachedTeams.map(t=>'<option value="'+t.code+'">'+t.code+(t.desc?' - '+t.desc:'')+(t.date?' ('+t.date+')':'')+'</option>').join('');}
 }
-
-async function exportInsurance() {
-  const teamVal = document.getElementById('export-team-sel').value;
-  const doExcel = document.getElementById('exp-excel').checked;
-  const doTxt = document.getElementById('exp-txt').checked;
-  const doPdf = document.getElementById('exp-pdf').checked;
-  if (!doExcel && !doTxt && !doPdf) { alert('請至少選擇一種匯出格式'); return; }
-  showLoading('從 Google Sheets 取得資料…');
-  try {
-    const data = await api({ action:'getRegistrations' });
-    hideLoading();
-    let regs = data.registrations || [];
-    if (teamVal !== 'all') regs = regs.filter(r => r['團名']===teamVal);
-    if (!regs.length) { alert('此選項尚無報名資料'); return; }
-    const headers = ['時間戳記','類型','團名','姓名','身分證','出生年月日','身高','體重','腳尺寸','配重','手機','潛水日期','時間','租借裝備','證照等級','潛水支數','上次潛水','交通','備註'];
-    const rows = regs.map(r => headers.map(h => r[h]||''));
-    const label = teamVal==='all' ? '全部' : teamVal;
-    if (doExcel) {
-      const csv = [headers,...rows].map(r=>r.map(v=>`"${v.toString().replace(/"/g,'""')}"`).join(',')).join('\n');
-      dl('\uFEFF'+csv, '保險資料_'+label+'.csv', 'text/csv;charset=utf-8');
-    }
-    if (doTxt) {
-      const w = [20,6,12,10,12,12,6,6,6,6,12,12,8,8,14,6,12,12,16];
-      const pad = (s,n) => s.toString().substring(0,n).padEnd(n,' ');
-      const line = '─'.repeat(w.reduce((a,b)=>a+b+1,0));
-      let txt = '亞特蘭提斯潛水店 保險資料\n匯出：'+new Date().toLocaleString('zh-TW')+'\n'+line+'\n';
-      txt += headers.map((h,i)=>pad(h,w[i])).join(' ')+'\n'+line+'\n';
-      rows.forEach(r => { txt += r.map((v,i)=>pad(v,w[i])).join(' ')+'\n'; });
-      txt += line+'\n共 '+regs.length+' 筆';
-      dl(txt, '保險資料_'+label+'.txt', 'text/plain;charset=utf-8');
-    }
-    if (doPdf) {
-      const win = window.open('','_blank');
-      const trs = rows.map(r=>'<tr>'+r.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('');
-      win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>保險資料</title>'
-        +'<style>body{font-family:Arial,sans-serif;font-size:10px;padding:16px;}'
-        +'table{border-collapse:collapse;width:100%;}th,td{border:1px solid #ccc;padding:3px 5px;}th{background:#e8f4fb;}'
-        +'button{margin-bottom:10px;padding:5px 14px;cursor:pointer;}@media print{button{display:none;}}</style></head><body>'
-        +'<h2>🤿 亞特蘭提斯潛水店 — 保險資料</h2>'
-        +'<p>匯出：'+new Date().toLocaleString('zh-TW')+' ｜ '+regs.length+' 筆 ｜ '+label+'</p>'
-        +'<button onclick="window.print()">列印 / 另存PDF</button>'
-        +'<table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead>'
-        +'<tbody>'+trs+'</tbody></table></body></html>');
-      win.document.close();
-    }
-  } catch(e) { hideLoading(); alert('取得資料失敗，請稍後再試'); }
-}
-
 function dl(content, filename, mime) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([content],{type:mime}));
   a.download = filename;
   a.click();
 }
+
+function previewFubonMembers(code){
+  const preview=document.getElementById('fubon-member-preview');
+  const list=document.getElementById('fubon-member-list');
+  if(!code){preview.style.display='none';return;}
+  const members=cachedRegs.filter(r=>String(r['團名']).trim()===String(code).trim());
+  if(!members.length){list.innerHTML='<span style="color:var(--sub)">此團尚無報名成員</span>';}
+  else{list.innerHTML=members.map((m,i)=>'<div style="padding:5px 0;border-bottom:1px solid #c8eaf5;"><strong>'+(i+1)+'. '+(m['姓名']||'')+'</strong> <span style="color:var(--sub)">'+(m['身分證']||'')+'</span> <span style="color:var(--sub);font-size:0.78rem;">生日：'+(m['出生年月日']||'')+'</span></div>').join('');}
+  preview.style.display='block';
+}
+function openFubonInsurance(){
+  const code=document.getElementById('fubon-team-sel').value;
+  const cat=document.getElementById('fubon-category').value;
+  if(!code){alert('請先選擇要投保的團體');return;}
+  const members=cachedRegs.filter(r=>String(r['團名']).trim()===String(code).trim());
+  if(!members.length){alert('此團尚無報名成員，無法投保');return;}
+  const url='https://b2c.518fb.com/B2CFubonTP/step1?unionCode=B2C_PACKAGE&groupMenuid=B2C_'+cat+'&unionSource=MOBILE';
+  const win=window.open(url,'_blank');
+  if(!win){alert('請允許彈出視窗後再試');return;}
+  const team=cachedTeams.find(t=>String(t.code).trim()===String(code).trim());
+  showInsuranceHelper(members,team);
+}
+function showInsuranceHelper(members,team){
+  const old=document.getElementById('insuranceHelper');if(old)old.remove();
+  const div=document.createElement('div');
+  div.id='insuranceHelper';
+  div.style.cssText='position:fixed;bottom:20px;right:20px;width:340px;max-height:500px;background:white;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.25);z-index:9999;overflow:hidden;';
+  div.innerHTML='<div style="background:linear-gradient(135deg,#e84393,#c0006e);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;"><span style="font-weight:700;font-size:0.92rem;">🏊 富邦海域險 被保險人資料</span><button onclick="document.getElementById('insuranceHelper').remove()" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;line-height:1;">✕</button></div><div style="padding:12px;overflow-y:auto;max-height:420px;"><p style="font-size:0.82rem;color:#666;margin-bottom:10px;">團體：<strong>'+(team?team.code:'')+(team&&team.desc?' - '+team.desc:'')+'</strong><br>活動日期：<strong>'+(team&&team.date?team.date:'未設定')+'</strong><br>投保人數：<strong>'+members.length+' 人</strong></p><table style="width:100%;font-size:0.8rem;border-collapse:collapse;"><thead><tr style="background:#f0f9ff;"><th style="padding:5px;text-align:left;">姓名</th><th style="padding:5px;">身分證</th><th style="padding:5px;">生日</th></tr></thead><tbody>'+members.map((m,i)=>'<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">'+(i+1)+'. '+(m['姓名']||'')+'</td><td style="padding:5px;">'+(m['身分證']||'')+'</td><td style="padding:5px;">'+(m['出生年月日']||'')+'</td></tr>').join('')+'</tbody></table><p style="font-size:0.75rem;color:#999;margin-top:10px;">在富邦投保頁面逐一填入以上資料後完成付款</p></div>';
+  document.body.appendChild(div);
+}
+window.updateAgreeBtn=updateAgreeBtn;window.agreePrivacy=agreePrivacy;window.declinePrivacy=declinePrivacy;
+window.selectType=selectType;window.proceedType=proceedType;window.goHealth=goHealth;
+window.setHealth=setHealth;window.checkAndSubmit=checkAndSubmit;window.newForm=newForm;
+window.showAdminLogin=showAdminLogin;window.closeAdminLogin=closeAdminLogin;window.adminLogin=adminLogin;
+window.logoutAdmin=logoutAdmin;window.switchTab=switchTab;window.loadAdminData=loadAdminData;
+window.loadAllRegs=loadAllRegs;window.createTeam=createTeam;window.deleteTeam=deleteTeam;
+window.exportInsurance=exportInsurance;window.openFubonInsurance=openFubonInsurance;
+window.previewFubonMembers=previewFubonMembers;window.showInsuranceHelper=showInsuranceHelper;
 </script>
 </body>
 </html>
