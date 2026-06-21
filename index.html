@@ -5,88 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>亞特蘭提斯潛水店</title>
 <style>
-  :root {
-    --ocean: #0077b6; --deep: #023e8a; --light: #90e0ef; --foam: #caf0f8;
-    --dark: #03045e; --warn: #e63946; --ok: #2dc653; --bg: #f0f9ff;
-    --card: #ffffff; --text: #1b2a3b; --sub: #5a7a8a;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  header { background: linear-gradient(135deg, var(--dark), var(--ocean)); color: white; padding: 18px 24px; display: flex; align-items: center; gap: 14px; }
-  header .logo { font-size: 2rem; }
-  header h1 { font-size: 1.3rem; font-weight: 700; }
-  header p { font-size: 0.8rem; opacity: 0.8; }
-  .admin-btn { margin-left: auto; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; }
-  .admin-btn:hover { background: rgba(255,255,255,0.25); }
-  .page { display: none; max-width: 680px; margin: 0 auto; padding: 24px 16px; }
-  .page.active { display: block; }
-  .card { background: var(--card); border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,119,182,0.1); margin-bottom: 18px; }
-  h2 { color: var(--deep); font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-  h3 { color: var(--ocean); font-size: 1rem; margin-bottom: 10px; }
-  .privacy-text { font-size: 0.85rem; color: var(--sub); line-height: 1.7; max-height: 200px; overflow-y: auto; background: var(--foam); border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid var(--light); }
-  .agree-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 0.9rem; }
-  .agree-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--ocean); cursor: pointer; }
-  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
-  .type-card { border: 2px solid var(--light); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
-  .type-card:hover, .type-card.selected { border-color: var(--ocean); background: var(--foam); }
-  .type-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
-  .type-card strong { display: block; color: var(--deep); font-size: 0.95rem; }
-  .type-card small { color: var(--sub); font-size: 0.78rem; }
-  label { display: block; font-size: 0.85rem; color: var(--sub); margin-bottom: 4px; margin-top: 12px; font-weight: 600; }
-  input[type=text], input[type=date], input[type=tel], input[type=number], select, textarea {
-    width: 100%; padding: 9px 12px; border: 1.5px solid #d0e8f5; border-radius: 8px; font-size: 0.92rem; outline: none; transition: border 0.2s; background: #fff;
-  }
-  input:focus, select:focus, textarea:focus { border-color: var(--ocean); }
-  textarea { resize: vertical; min-height: 70px; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-  .health-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--foam); }
-  .health-item:last-child { border-bottom: none; }
-  .health-item span { font-size: 0.9rem; flex: 1; padding-right: 10px; }
-  .toggle-group { display: flex; gap: 8px; flex-shrink: 0; }
-  .tog { padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--light); cursor: pointer; font-size: 0.82rem; background: white; transition: all 0.15s; }
-  .tog.yes { background: #ffd6d6; border-color: var(--warn); color: var(--warn); }
-  .tog.no { background: #d6f5e0; border-color: var(--ok); color: #1a7a3a; }
-  .tog.unanswered { outline: 2px solid var(--warn); }
-  .btn { display: inline-block; padding: 11px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
-  .btn-primary { background: linear-gradient(135deg, var(--ocean), var(--deep)); color: white; width: 100%; }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn-outline { background: white; border: 2px solid var(--ocean); color: var(--ocean); }
-  .btn-danger { background: var(--warn); color: white; }
-  .btn-sm { padding: 6px 14px; font-size: 0.82rem; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .success-icon { font-size: 3.5rem; text-align: center; margin: 10px 0; }
-  .reminder-box { background: linear-gradient(135deg, #fff9e6, #fff3cc); border: 1px solid #ffd166; border-radius: 10px; padding: 14px; font-size: 0.88rem; line-height: 1.7; margin-top: 12px; }
-  .admin-page { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
-  .admin-page.active { display: block; }
-  .admin-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--light); overflow-x: auto; }
-  .admin-tab { padding: 10px 20px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; margin-bottom: -2px; color: var(--sub); white-space: nowrap; }
-  .admin-tab.active { border-bottom-color: var(--ocean); color: var(--ocean); font-weight: 700; }
-  .member-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  .member-table th { background: var(--foam); color: var(--deep); padding: 8px; text-align: left; }
-  .member-table td { padding: 7px 8px; border-bottom: 1px solid #e8f4fb; }
-  .member-table tr:hover td { background: #f5fbff; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-  .tag-team { background: #e0f0ff; color: var(--ocean); }
-  .tag-solo { background: #e8f5e9; color: #2e7d32; }
-  .export-opts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
-  .export-opts label { margin: 0; font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.88rem; color: var(--text); }
-  .export-opts input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--ocean); }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
-  .modal-overlay.show { display: flex; }
-  .modal { background: white; border-radius: 14px; padding: 28px; width: 90%; max-width: 380px; }
-  .modal h3 { margin-bottom: 16px; color: var(--deep); }
-  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
-  .notice { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; color: #856404; margin-bottom: 14px; }
-  .badge { display: inline-block; background: var(--ocean); color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.78rem; margin-left: 8px; }
-  .loading-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
-  .loading-mask.show { display: flex; }
-  .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-mask p { color: white; font-size: 0.95rem; }
-  .team-list { list-style: none; }
-  .team-list li { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 0.88rem; border-bottom: 1px solid #c8eaf5; }
-  .team-list li:last-child { border-bottom: none; }
+:root {
+--ocean: #0077b6; --deep: #023e8a; --light: #90e0ef; --foam: #caf0f8;
+--dark: #03045e; --warn: #e63946; --ok: #2dc653; --bg: #f0f9ff;
+--card: #ffffff; --text: #1b2a3b; --sub: #5a7a8a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+header { background: linear-gradient(135deg, var(--dark), var(--ocean)); color: white; padding: 18px 24px; display: flex; align-items: center; gap: 14px; }
+header .logo { font-size: 2rem; }
+header h1 { font-size: 1.3rem; font-weight: 700; }
+header p { font-size: 0.8rem; opacity: 0.8; }
+.admin-btn { margin-left: auto; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 0.82rem; }
+.admin-btn:hover { background: rgba(255,255,255,0.25); }
+.page { display: none; max-width: 680px; margin: 0 auto; padding: 24px 16px; }
+.page.active { display: block; }
+.card { background: var(--card); border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,119,182,0.1); margin-bottom: 18px; }
+h2 { color: var(--deep); font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+h3 { color: var(--ocean); font-size: 1rem; margin-bottom: 10px; }
+.privacy-text { font-size: 0.85rem; color: var(--sub); line-height: 1.7; max-height: 200px; overflow-y: auto; background: var(--foam); border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid var(--light); }
+.agree-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 0.9rem; }
+.agree-row input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--ocean); cursor: pointer; }
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+.type-card { border: 2px solid var(--light); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.type-card:hover, .type-card.selected { border-color: var(--ocean); background: var(--foam); }
+.type-card .icon { font-size: 2.2rem; margin-bottom: 8px; }
+.type-card strong { display: block; color: var(--deep); font-size: 0.95rem; }
+.type-card small { color: var(--sub); font-size: 0.78rem; }
+label { display: block; font-size: 0.85rem; color: var(--sub); margin-bottom: 4px; margin-top: 12px; font-weight: 600; }
+input[type=text], input[type=date], input[type=tel], input[type=number], select, textarea {
+width: 100%; padding: 9px 12px; border: 1.5px solid #d0e8f5; border-radius: 8px; font-size: 0.92rem; outline: none; transition: border 0.2s; background: #fff;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--ocean); }
+textarea { resize: vertical; min-height: 70px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.health-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--foam); }
+.health-item:last-child { border-bottom: none; }
+.health-item span { font-size: 0.9rem; flex: 1; padding-right: 10px; }
+.toggle-group { display: flex; gap: 8px; flex-shrink: 0; }
+.tog { padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--light); cursor: pointer; font-size: 0.82rem; background: white; transition: all 0.15s; }
+.tog.yes { background: #ffd6d6; border-color: var(--warn); color: var(--warn); }
+.tog.no { background: #d6f5e0; border-color: var(--ok); color: #1a7a3a; }
+.tog.unanswered { outline: 2px solid var(--warn); }
+.btn { display: inline-block; padding: 11px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: all 0.2s; }
+.btn-primary { background: linear-gradient(135deg, var(--ocean), var(--deep)); color: white; width: 100%; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-outline { background: white; border: 2px solid var(--ocean); color: var(--ocean); }
+.btn-danger { background: var(--warn); color: white; }
+.btn-sm { padding: 6px 14px; font-size: 0.82rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.success-icon { font-size: 3.5rem; text-align: center; margin: 10px 0; }
+.reminder-box { background: linear-gradient(135deg, #fff9e6, #fff3cc); border: 1px solid #ffd166; border-radius: 10px; padding: 14px; font-size: 0.88rem; line-height: 1.7; margin-top: 12px; }
+.admin-page { display: none; max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+.admin-page.active { display: block; }
+.admin-tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--light); overflow-x: auto; }
+.admin-tab { padding: 10px 20px; cursor: pointer; font-size: 0.9rem; border-bottom: 3px solid transparent; margin-bottom: -2px; color: var(--sub); white-space: nowrap; }
+.admin-tab.active { border-bottom-color: var(--ocean); color: var(--ocean); font-weight: 700; }
+.member-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.member-table th { background: var(--foam); color: var(--deep); padding: 8px; text-align: left; }
+.member-table td { padding: 7px 8px; border-bottom: 1px solid #e8f4fb; }
+.member-table tr:hover td { background: #f5fbff; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.tag-team { background: #e0f0ff; color: var(--ocean); }
+.tag-solo { background: #e8f5e9; color: #2e7d32; }
+.export-opts { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+.export-opts label { margin: 0; font-weight: normal; display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.88rem; color: var(--text); }
+.export-opts input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--ocean); }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: white; border-radius: 14px; padding: 28px; width: 90%; max-width: 380px; }
+.modal h3 { margin-bottom: 16px; color: var(--deep); }
+.modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+.notice { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; color: #856404; margin-bottom: 14px; }
+.badge { display: inline-block; background: var(--ocean); color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.78rem; margin-left: 8px; }
+.loading-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
+.loading-mask.show { display: flex; }
+.spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-mask p { color: white; font-size: 0.95rem; }
+.team-list { list-style: none; }
+.team-list li { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 0.88rem; border-bottom: 1px solid #c8eaf5; }
+.team-list li:last-child { border-bottom: none; }
+
+/* ── 裝備租借 Gear Rental ── */
+.gear-hint { background: var(--foam); border: 1px solid var(--light); border-radius: 8px; padding: 10px 13px; font-size: 0.82rem; color: var(--sub); line-height: 1.6; margin-bottom: 10px; margin-top: 6px; }
+.gear-checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 10px; }
+.gear-cb-item { display: flex; align-items: center; gap: 8px; border: 1.5px solid #d0e8f5; border-radius: 9px; padding: 8px 11px; cursor: pointer; transition: all 0.15s; font-size: 0.88rem; color: var(--text); }
+.gear-cb-item:hover { border-color: var(--ocean); background: var(--foam); }
+.gear-cb-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--ocean); cursor: pointer; flex-shrink: 0; }
+.gear-cb-item.checked { border-color: var(--ocean); background: var(--foam); font-weight: 600; color: var(--deep); }
+.mask-note { background: #fff9e6; border: 1px solid #ffd166; border-radius: 8px; padding: 9px 13px; font-size: 0.82rem; color: #856404; line-height: 1.6; margin-top: 8px; display: none; }
+.size-hint { font-size: 0.82rem; color: var(--sub); margin-top: 4px; margin-bottom: 2px; }
+
+/* ── 交通安排 Transport ── */
+.transport-info-box { display: none; margin-top: 10px; border: 1.5px solid var(--light); border-radius: 10px; overflow: hidden; }
+.transport-info-header { background: var(--foam); padding: 8px 13px; font-size: 0.83rem; font-weight: 700; color: var(--deep); display: flex; align-items: center; gap: 6px; }
+.transport-info-body { padding: 10px 13px; font-size: 0.84rem; color: var(--text); line-height: 1.75; }
+.transport-route { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ocean); margin-bottom: 4px; }
+.transport-route span.arrow { color: var(--sub); font-weight: 400; }
+.transport-price-badge { display: inline-block; background: #e0f0ff; color: var(--deep); border-radius: 20px; padding: 2px 10px; font-size: 0.79rem; font-weight: 700; margin-left: 6px; }
+.meetup-row { display: flex; align-items: flex-start; gap: 5px; margin-top: 4px; color: var(--sub); font-size: 0.82rem; }
 </style>
 </head>
 <body>
@@ -100,7 +119,7 @@
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.6.2</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.7.0</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -177,20 +196,17 @@
       <div><label>身分證號碼 *</label><input type="text" id="f-id" placeholder="A123456789"></div>
     </div>
     <label>出生年月日 *</label><input type="date" id="f-dob">
-    <div class="row3">
-      <div><label>身高 (cm)</label><input type="number" id="f-height" placeholder="170"></div>
-      <div><label>體重 (kg)</label><input type="number" id="f-weight" placeholder="65"></div>
-      <div><label>腳尺寸 (cm)</label><input type="number" id="f-foot" placeholder="26"></div>
-    </div>
+
     <div class="row2">
       <div><label>配重 (kg)</label><input type="number" id="f-ballast" placeholder="4"></div>
       <div><label>手機號碼 *</label><input type="tel" id="f-phone" placeholder="0912345678"></div>
     </div>
+
     <div id="row-dive-date">
       <label id="label-dive-date">潛水日期 *</label><input type="date" id="f-dive-date">
     </div>
+
     <div id="row-time-gear" class="row2" style="margin-top:0;">
-      <div style="display:none;"></div>
       <div>
         <label>想要的時間</label>
         <select id="f-time">
@@ -201,13 +217,64 @@
         </select>
       </div>
     </div>
+
+    <!-- ══ 裝備租借 (UPDATED) ══ -->
     <label>是否租借裝備</label>
-    <select id="f-gear">
+    <div class="gear-hint">
+      📌 租借價格請於 LINE 官方帳號下方點選「報名 Fun Dive」→「價格資訊」查找。<br>
+      若需租借面鏡，建議以隱形眼鏡為主，上下岸步行時較安全；若需有度數的面鏡，請在備註欄告知「近視度數」。
+    </div>
+    <select id="f-gear" onchange="onGearChange()">
       <option value="">請選擇</option>
-      <option>不需要</option>
-      <option>需要全套</option>
-      <option>部分租借</option>
+      <option value="不需要">不需要，我自己都有</option>
+      <option value="部分租借">部分租借（請勾選下方項目）</option>
+      <option value="需要全套">全套裝備（面鏡+防寒衣+調節器+BCD+套鞋+蛙鞋，不含電腦錶）</option>
+      <option value="電腦錶">電腦錶 Dive Computer（加租）</option>
+      <option value="需要全套+電腦錶">全套裝備 + 電腦錶</option>
     </select>
+
+    <!-- 部分租借：裝備勾選清單 -->
+    <div id="gear-partial-box" style="display:none; margin-top:10px;">
+      <p style="font-size:0.84rem;color:var(--sub);margin-bottom:6px;font-weight:600;">請勾選需要租借的裝備（可複選）：</p>
+      <div class="gear-checkbox-grid">
+        <label class="gear-cb-item" id="gcb-mask">
+          <input type="checkbox" value="面鏡" onchange="onGearCbChange(this,'gcb-mask','mask')"> 面鏡 Mask
+        </label>
+        <label class="gear-cb-item" id="gcb-wetsuit">
+          <input type="checkbox" value="防寒衣" onchange="onGearCbChange(this,'gcb-wetsuit','wetsuit')"> 防寒衣 Wetsuit
+        </label>
+        <label class="gear-cb-item" id="gcb-reg">
+          <input type="checkbox" value="調節器" onchange="onGearCbChange(this,'gcb-reg','')"> 調節器 Regulator
+        </label>
+        <label class="gear-cb-item" id="gcb-bcd">
+          <input type="checkbox" value="BCD" onchange="onGearCbChange(this,'gcb-bcd','')"> BCD
+        </label>
+        <label class="gear-cb-item" id="gcb-fins">
+          <input type="checkbox" value="蛙鞋" onchange="onGearCbChange(this,'gcb-fins','fins')"> 蛙鞋 Fins
+        </label>
+        <label class="gear-cb-item" id="gcb-boots">
+          <input type="checkbox" value="套鞋" onchange="onGearCbChange(this,'gcb-boots','boots')"> 套鞋 Boots
+        </label>
+        <label class="gear-cb-item" id="gcb-computer">
+          <input type="checkbox" value="電腦錶" onchange="onGearCbChange(this,'gcb-computer','')"> 電腦錶 Dive Computer
+        </label>
+      </div>
+      <!-- 面鏡提示 -->
+      <div class="mask-note" id="mask-note">
+        👓 建議以隱形眼鏡為主，上下岸步行時較安全。若需有度數的面鏡，請在下方備註欄填寫「近視度數」，以便我們提前為您準備。
+      </div>
+    </div>
+
+    <!-- 身高體重腳尺寸：需要租借防寒衣/套鞋/蛙鞋時顯示 -->
+    <div id="gear-size-box" style="display:none; margin-top:10px;">
+      <p class="size-hint">請填寫身高、體重、腳的尺寸，以便我們為您準備合適的裝備：</p>
+      <div class="row3">
+        <div><label>身高 (cm)</label><input type="number" id="f-height" placeholder="170"></div>
+        <div><label>體重 (kg)</label><input type="number" id="f-weight" placeholder="65"></div>
+        <div><label>腳尺寸 (cm)</label><input type="number" id="f-foot" placeholder="26"></div>
+      </div>
+    </div>
+
     <div class="row2">
       <div>
         <label>水肺潛水證照最高等級</label>
@@ -224,17 +291,53 @@
       <div><label>潛水支數</label><input type="number" id="f-dives" placeholder="0"></div>
     </div>
     <label>上一次潛水時間</label><input type="date" id="f-last-dive">
+
+    <!-- ══ 東北角交通 (UPDATED) ══ -->
     <div id="row-transport">
       <label>是否需要安排東北角交通</label>
-      <select id="f-transport">
+      <p style="font-size:0.82rem;color:var(--sub);margin-bottom:6px;margin-top:2px;">
+        協助安排來回東北角龍洞據點的共乘交通。
+      </p>
+      <select id="f-transport" onchange="onTransportChange()">
         <option value="">請選擇</option>
-        <option>不需要，自行前往</option>
-        <option>需要，請幫我安排</option>
+        <option value="不需要，自行前往">不需要，自行前往</option>
+        <option value="上午場共乘（NT$500/人）">上午場共乘（NT$500/人）</option>
+        <option value="下午場共乘（NT$350/人）">下午場共乘（NT$350/人）</option>
       </select>
+
+      <!-- 上午場說明 -->
+      <div class="transport-info-box" id="transport-morning">
+        <div class="transport-info-header">🚐 上午場交通資訊</div>
+        <div class="transport-info-body">
+          <div class="transport-route">
+            台北松山潛店 <span class="arrow">↔</span> 東北角龍洞據點
+            <span class="transport-price-badge">NT$500／人</span>
+          </div>
+          <div class="meetup-row">⏰ <span>集合時間：<strong>早上 7:00</strong></span></div>
+          <div class="meetup-row">📍 <span>集合地點：<strong>亞特蘭提斯潛水中心台北店（松山）</strong></span></div>
+          <div style="margin-top:6px;font-size:0.8rem;color:var(--sub);">車輛準時出發，請勿遲到。費用於報到時現場繳交。</div>
+        </div>
+      </div>
+
+      <!-- 下午場說明 -->
+      <div class="transport-info-box" id="transport-afternoon">
+        <div class="transport-info-header">🚐 下午場交通資訊</div>
+        <div class="transport-info-body">
+          <div class="transport-route">
+            瑞芳火車站 <span class="arrow">↔</span> 東北角龍洞據點
+            <span class="transport-price-badge">NT$350／人</span>
+          </div>
+          <div class="meetup-row">⏰ <span>集合時間：<strong>下午 13:00</strong></span></div>
+          <div class="meetup-row">📍 <span>集合地點：<strong>瑞芳火車站旁寶雅（POYA）門口</strong></span></div>
+          <div style="margin-top:6px;font-size:0.8rem;color:var(--sub);">適合搭台鐵前來的學員，比松山出發路程短，費用較低。費用於報到時現場繳交。</div>
+        </div>
+      </div>
     </div>
+
     <label>其他想說的話</label>
-    <textarea id="f-notes" placeholder="特殊需求、問題或備註…"></textarea>
+    <textarea id="f-notes" placeholder="特殊需求、問題或備註（例如：面鏡近視度數）…"></textarea>
   </div>
+
   <button class="btn btn-primary" onclick="goHealth()">下一步：健康聲明 →</button>
 </div>
 
@@ -362,8 +465,8 @@
       </div>
       <div style="overflow-x:auto;margin-top:12px;">
         <table class="member-table" id="all-table">
-          <thead><tr><th>時間</th><th>姓名</th><th>電話</th><th>潛水日期</th><th>類型</th><th>團名</th><th>證照</th><th>交通</th></tr></thead>
-          <tbody><tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr></tbody>
+          <thead><tr><th>時間</th><th>姓名</th><th>電話</th><th>潛水日期</th><th>類型</th><th>團名</th><th>證照</th><th>交通</th><th>租借裝備</th></tr></thead>
+          <tbody><tr><td colspan="9" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -387,11 +490,58 @@
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbxjva8mwGHYRMorxt4FbYrpfTxNUKevVTwU5faqB9-yUQVUvuB6CHvADzlVzE45kIFw/exec';
 const HEALTH_KEYS = ['h1','h2','h3','h4','h5','h6'];
-
 let currentType = '', currentTeam = null;
-let healthState = {}; // { h1: 'yes'|'no', h2: ... }
+let healthState = {};
 let cachedTeams = [], cachedRegs = [];
 let adminToken = null;
+
+// ── 裝備：需要顯示尺寸的項目 ──
+const SIZE_GEAR = ['防寒衣','套鞋','蛙鞋','BCD'];
+
+function onGearChange() {
+  const val = document.getElementById('f-gear').value;
+  const partialBox = document.getElementById('gear-partial-box');
+  const sizeBox = document.getElementById('gear-size-box');
+
+  if (val === '部分租借') {
+    partialBox.style.display = 'block';
+    updateSizeBox();
+  } else {
+    partialBox.style.display = 'none';
+    // 全套需要尺寸
+    sizeBox.style.display = (val === '需要全套' || val === '需要全套+電腦錶') ? 'block' : 'none';
+    document.getElementById('mask-note').style.display = 'none';
+  }
+}
+
+function onGearCbChange(cb, labelId, type) {
+  const label = document.getElementById(labelId);
+  label.classList.toggle('checked', cb.checked);
+  updateSizeBox();
+  // 面鏡提示
+  const maskCb = document.querySelector('#gcb-mask input');
+  document.getElementById('mask-note').style.display = maskCb && maskCb.checked ? 'block' : 'none';
+}
+
+function updateSizeBox() {
+  const checked = Array.from(document.querySelectorAll('#gear-partial-box input[type=checkbox]:checked')).map(c => c.value);
+  const needSize = SIZE_GEAR.some(g => checked.includes(g));
+  document.getElementById('gear-size-box').style.display = needSize ? 'block' : 'none';
+}
+
+function getSelectedGear() {
+  const val = document.getElementById('f-gear').value;
+  if (val !== '部分租借') return val;
+  const checked = Array.from(document.querySelectorAll('#gear-partial-box input[type=checkbox]:checked')).map(c => c.value);
+  return checked.length ? '部分租借：' + checked.join('、') : '部分租借（未勾選）';
+}
+
+// ── 交通：顯示說明 ──
+function onTransportChange() {
+  const val = document.getElementById('f-transport').value;
+  document.getElementById('transport-morning').style.display = val.includes('上午') ? 'block' : 'none';
+  document.getElementById('transport-afternoon').style.display = val.includes('下午') ? 'block' : 'none';
+}
 
 // ── API ──
 async function api(payload) {
@@ -400,14 +550,12 @@ async function api(payload) {
   return res.json();
 }
 
-// ── Loading ──
 function showLoading(msg='處理中…') {
   document.getElementById('loadingMsg').textContent = msg;
   document.getElementById('loadingMask').classList.add('show');
 }
 function hideLoading() { document.getElementById('loadingMask').classList.remove('show'); }
 
-// ── Nav ──
 function goPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id)?.classList.add('active');
@@ -415,7 +563,6 @@ function goPage(id) {
   window.scrollTo(0,0);
 }
 
-// ── Privacy ──
 function updateAgreeBtn() {
   const checked = document.getElementById('agreeCheck').checked;
   const btn = document.getElementById('agreeBtn');
@@ -425,7 +572,6 @@ function updateAgreeBtn() {
 function agreePrivacy() { loadSavedData(); goPage('page-type'); }
 function declinePrivacy() { goPage('page-decline'); }
 
-// ── Type ──
 function selectType(t) {
   currentType = t;
   document.getElementById('card-solo').classList.toggle('selected', t==='solo');
@@ -446,20 +592,17 @@ async function proceedType() {
       if (!team) { document.getElementById('team-code-msg').innerHTML = '<span style="color:var(--warn)">❌ 找不到此團名代碼，請確認後重試</span>'; return; }
       currentTeam = team;
       document.getElementById('team-banner').style.display = 'block';
-      document.getElementById('team-banner-name').textContent = team.code + (team.desc ? ` (${team.desc})` : '') + (team.date ? `　📅 ${team.date}` : '');
+      document.getElementById('team-banner-name').textContent = team.code + (team.desc ? ` (${team.desc})` : '') + (team.date ? ` 📅 ${team.date}` : '');
     } catch(e) { hideLoading(); alert('網路錯誤，請稍後再試'); return; }
   } else {
     currentTeam = null;
     document.getElementById('team-banner').style.display = 'none';
   }
   const isTeam = currentType === 'team';
-  // 潛水日期：團體自動帶入成團日期並鎖定
   const diveDateEl = document.getElementById('f-dive-date');
   if (isTeam && currentTeam?.date) {
-    // 確保日期格式為 YYYY-MM-DD
     const raw = currentTeam.date;
     let formatted = raw;
-    // 如果是 YYYY/MM/DD 轉成 YYYY-MM-DD
     if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(raw)) {
       const parts = raw.split('/');
       formatted = parts[0] + '-' + parts[1].padStart(2,'0') + '-' + parts[2].padStart(2,'0');
@@ -477,13 +620,11 @@ async function proceedType() {
     diveDateEl.style.fontWeight = '';
   }
   document.getElementById('label-dive-date').textContent = isTeam ? '潛水日期（成團日期）' : '潛水日期 *';
-  document.getElementById('row-time-gear').style.display = isTeam ? 'none' : 'block';
+  document.getElementById('row-time-gear').style.display = isTeam ? 'none' : 'grid';
   document.getElementById('row-transport').style.display = isTeam ? 'none' : 'block';
-
   goPage('page-basic');
 }
 
-// ── Saved data ──
 function loadSavedData() {
   const saved = JSON.parse(localStorage.getItem('atl_user_data') || 'null');
   if (!saved) return;
@@ -493,10 +634,8 @@ function loadSavedData() {
   });
 }
 
-// ── Basic → Health ──
 function goHealth() {
   const isTeam = currentType === 'team';
-  // 個人報名才驗證潛水日期
   const requiredFields = isTeam
     ? ['f-name','f-id','f-dob','f-phone']
     : ['f-name','f-id','f-dob','f-phone','f-dive-date'];
@@ -507,7 +646,6 @@ function goHealth() {
       return;
     }
   }
-  // 重置健康聲明狀態
   healthState = {};
   HEALTH_KEYS.forEach(k => {
     const y = document.getElementById(k+'-y');
@@ -521,26 +659,21 @@ function goHealth() {
   goPage('page-health');
 }
 
-// ── Health toggle ──
 function setHealth(key, val) {
   healthState[key] = val;
   const y = document.getElementById(key+'-y');
   const n = document.getElementById(key+'-n');
   y.className = 'tog' + (val==='yes' ? ' yes' : '');
   n.className = 'tog' + (val==='no' ? ' no' : '');
-  // 清除紅色提示
   y.style.outline = '';
   n.style.outline = '';
-  // 顯示警告
   const anyYes = HEALTH_KEYS.some(k => healthState[k]==='yes');
   document.getElementById('health-warning').style.display = anyYes ? 'block' : 'none';
 }
 
-// ── Submit 驗證 ──
 function checkAndSubmit() {
   const unanswered = HEALTH_KEYS.filter(k => !healthState[k]);
   if (unanswered.length > 0) {
-    // 標記未填項目
     unanswered.forEach(k => {
       document.getElementById(k+'-y').style.outline = '2px solid var(--warn)';
       document.getElementById(k+'-n').style.outline = '2px solid var(--warn)';
@@ -551,7 +684,6 @@ function checkAndSubmit() {
   submitForm();
 }
 
-// ── Submit ──
 async function submitForm() {
   const g = id => document.getElementById(id)?.value || '';
   const record = {
@@ -559,7 +691,7 @@ async function submitForm() {
     name: g('f-name'), idNo: g('f-id'), dob: g('f-dob'),
     height: g('f-height'), weight: g('f-weight'), foot: g('f-foot'),
     ballast: g('f-ballast'), phone: g('f-phone'), diveDate: g('f-dive-date'),
-    time: g('f-time'), gear: g('f-gear'), cert: g('f-cert'),
+    time: g('f-time'), gear: getSelectedGear(), cert: g('f-cert'),
     dives: g('f-dives'), lastDive: g('f-last-dive'),
     transport: g('f-transport'), notes: g('f-notes'),
     health: Object.assign({}, healthState)
@@ -569,7 +701,6 @@ async function submitForm() {
   showLoading('正在送出報名資料…');
   try {
     await api({ action:'addRegistration', record });
-    // 儲存非敏感資料供下次使用
     const ud = {};
     ['name','dob','height','weight','foot','ballast','phone','time','gear','cert','dives','transport'].forEach(f => { ud[f] = g('f-'+f); });
     localStorage.setItem('atl_user_data', JSON.stringify(ud));
@@ -593,11 +724,22 @@ function newForm() {
     document.getElementById(k+'-n').className = 'tog';
   });
   document.getElementById('agreeCheck').checked = false;
+  // reset gear UI
+  document.getElementById('f-gear').value = '';
+  document.getElementById('gear-partial-box').style.display = 'none';
+  document.getElementById('gear-size-box').style.display = 'none';
+  document.querySelectorAll('#gear-partial-box input[type=checkbox]').forEach(c => { c.checked = false; });
+  document.querySelectorAll('.gear-cb-item').forEach(l => l.classList.remove('checked'));
+  document.getElementById('mask-note').style.display = 'none';
+  // reset transport
+  document.getElementById('f-transport').value = '';
+  document.getElementById('transport-morning').style.display = 'none';
+  document.getElementById('transport-afternoon').style.display = 'none';
   updateAgreeBtn();
   goPage('page-privacy');
 }
 
-// ── Admin Login ──
+// ── Admin ──
 function showAdminLogin() {
   document.getElementById('adminLoginModal').classList.add('show');
   setTimeout(() => document.getElementById('adminPwd').focus(), 100);
@@ -634,8 +776,6 @@ function logoutAdmin() {
   document.getElementById('admin-panel').classList.remove('active');
   goPage('page-privacy');
 }
-
-// ── Admin Tabs ──
 function switchTab(id, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.style.display='none');
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -644,17 +784,10 @@ function switchTab(id, el) {
   if (id==='tab-all') loadAllRegs();
   if (id==='tab-export') renderExportSel();
 }
-
-// ── Admin Data ──
 function formatDisplayDate(val) {
   if (!val) return '';
-  try {
-    const d = new Date(val);
-    if (isNaN(d.getTime())) return String(val);
-    return d.toLocaleString('zh-TW');
-  } catch(e) { return String(val); }
+  try { const d = new Date(val); if (isNaN(d.getTime())) return String(val); return d.toLocaleString('zh-TW'); } catch(e) { return String(val); }
 }
-
 async function loadAdminData() {
   showLoading('載入資料中…');
   try {
@@ -669,10 +802,9 @@ async function loadAdminData() {
     renderExportSel();
   } catch(e) { hideLoading(); alert('載入失敗，請重新整理頁面'); }
 }
-
 async function loadAllRegs() {
   const tbody = document.querySelector('#all-table tbody');
-  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:20px;">載入中…</td></tr>';
   try {
     const data = await api({ action:'getRegistrations' });
     cachedRegs = data.registrations || [];
@@ -683,14 +815,14 @@ async function loadAllRegs() {
           <td>${r['姓名']||''}</td><td>${r['手機']||''}</td><td>${r['潛水日期']||''}</td>
           <td><span class="tag ${r['類型']==='團體'?'tag-team':'tag-solo'}">${r['類型']||''}</span></td>
           <td>${r['團名']||'-'}</td><td>${r['證照等級']||'-'}</td><td>${r['交通']||'-'}</td>
+          <td style="font-size:0.78rem;">${r['租借裝備']||'-'}</td>
         </tr>`).join('')
-      : '<tr><td colspan="8" style="text-align:center;color:var(--sub);padding:20px;">尚無報名資料</td></tr>';
+      : '<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:20px;">尚無報名資料</td></tr>';
     renderExportSel();
   } catch(e) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--warn);">載入失敗，請重試</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--warn);">載入失敗，請重試</td></tr>';
   }
 }
-
 async function createTeam() {
   const code = document.getElementById('new-team-code').value.trim().toUpperCase();
   const desc = document.getElementById('new-team-desc').value.trim();
@@ -709,7 +841,6 @@ async function createTeam() {
     renderTeamsList(); renderExportSel();
   } catch(e) { hideLoading(); alert('建立失敗，請稍後再試'); }
 }
-
 async function deleteTeam(code) {
   if (!confirm('確定要刪除「' + code + '」嗎？')) return;
   showLoading('刪除中…');
@@ -719,7 +850,6 @@ async function deleteTeam(code) {
     hideLoading(); renderTeamsList(); renderExportSel();
   } catch(e) { hideLoading(); alert('刪除失敗'); }
 }
-
 function renderTeamsList() {
   const el = document.getElementById('teams-list');
   if (!cachedTeams.length) {
@@ -742,13 +872,11 @@ function renderTeamsList() {
     </div>`;
   }).join('');
 }
-
 function renderExportSel() {
   const sel = document.getElementById('export-team-sel');
   sel.innerHTML = '<option value="all">全部報名（個人 + 團體）</option>' +
     cachedTeams.map(t => `<option value="${t.code}">團體：${t.code}${t.desc?' ('+t.desc+')':''}</option>`).join('');
 }
-
 async function exportInsurance() {
   const teamVal = document.getElementById('export-team-sel').value;
   const doExcel = document.getElementById('exp-excel').checked;
@@ -795,7 +923,6 @@ async function exportInsurance() {
     }
   } catch(e) { hideLoading(); alert('取得資料失敗，請稍後再試'); }
 }
-
 function dl(content, filename, mime) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([content],{type:mime}));
