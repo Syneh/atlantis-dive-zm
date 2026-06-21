@@ -108,6 +108,7 @@ textarea { resize: vertical; min-height: 70px; }
 .meetup-row { display: flex; align-items: flex-start; gap: 5px; margin-top: 4px; color: var(--sub); font-size: 0.82rem; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
 </head>
 <body>
 
@@ -120,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.1</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.2</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -956,6 +957,7 @@ function exportFubonPDF(regs, label) {
       const outDoc = await PDFDocument.create();
 
       // Embed custom font (NotoSansCJK-TC subset, supports Traditional Chinese)
+      outDoc.registerFontkit(fontkit);
       const customFont = await outDoc.embedFont(fontBytes, { subset: false });
 
       for (let p = 0; p < totalPages; p++) {
