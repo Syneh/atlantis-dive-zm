@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.6</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.7</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -986,12 +986,10 @@ function exportFubonPDF(regs, label) {
         slice.forEach((r, idx) => {
           const rowNum = idx + 1;
           const y      = ROW_Y[rowNum];
-          const globalNo = p * PER_PAGE + idx + 1;
           const name = (r['姓名']       || '').trim();
           const id   = (r['身分證']     || '').trim();
           const dob  = (r['出生年月日'] || '').replace(/-/g, '/').trim();
 
-          drawCentered(jdoc, String(globalNo), ...COLS.no,   y);
           drawCentered(jdoc, name,             ...COLS.name, y);
           drawCentered(jdoc, id,               ...COLS.id,   y);
           drawCentered(jdoc, dob,              ...COLS.dob,  y);
