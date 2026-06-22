@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.5</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.6</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -975,6 +975,7 @@ function exportFubonPDF(regs, label) {
 
       for (let p = 0; p < totalPages; p++) {
         // ── Step 1: jsPDF overlay for this page ──
+        const { jsPDF } = window.jspdf;
         const jdoc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
         jdoc.addFileToVFS('WQY.ttf', WQY_FONT_B64);
         jdoc.addFont('WQY.ttf', 'WQY', 'normal');
