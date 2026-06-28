@@ -108,7 +108,6 @@ textarea { resize: vertical; min-height: 70px; }
 .meetup-row { display: flex; align-items: flex-start; gap: 5px; margin-top: 4px; color: var(--sub); font-size: 0.82rem; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 </head>
 <body>
@@ -122,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.16</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.8.18</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -1051,6 +1050,24 @@ async function importGoogleForm() {
 
   showLoading('讀取 Excel 檔案中…');
   try {
+    // 動態載入 SheetJS（避免頁面載入時的 CDN 錯誤）
+    if (typeof XLSX === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        // 嘗試多個 CDN
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload = resolve;
+        s.onerror = () => {
+          // fallback: unpkg
+          const s2 = document.createElement('script');
+          s2.src = 'https://unpkg.com/xlsx/dist/xlsx.full.min.js';
+          s2.onload = resolve;
+          s2.onerror = reject;
+          document.head.appendChild(s2);
+        };
+        document.head.appendChild(s);
+      });
+    }
     const buf = await fileInput.files[0].arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array', cellDates: true });
 
