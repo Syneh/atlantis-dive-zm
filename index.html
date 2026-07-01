@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.1</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.2</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -1109,21 +1109,43 @@ async function importGoogleForm() {
     // 日期格式化：支援 Date 物件、'yyyy-mm-dd'、'yyyy/mm/dd'、'm/d/yyyy' 等格式
     const fmtDate = v => {
       if (!v) return '';
+      // Date 物件（SheetJS cellDates 模式）
       if (v instanceof Date || (typeof v === 'object' && v.getFullYear)) {
         const y = v.getFullYear(), m = String(v.getMonth()+1).padStart(2,'0'), d = String(v.getDate()).padStart(2,'0');
         return `${y}-${m}-${d}`;
       }
       const s = String(v).trim();
-      // yyyy-mm-dd 或 yyyy/mm/dd
-      const m1 = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (!s) return '';
+
+      // ── 整數：yyyymmdd（8位）或 yyyyMdd（7位，如 1994024 → 1994-02-04）
+      if (/^\d{7,8}$/.test(s)) {
+        if (s.length === 8) return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+      }
+
+      // ── yyyy-mm-dd 或 yyyy/mm/dd 或 yyyy.mm.dd（最常見，年份4位）
+      const m1 = s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
       if (m1) return `${m1[1]}-${m1[2].padStart(2,'0')}-${m1[3].padStart(2,'0')}`;
-      // m/d/yyyy（美式格式，例如 7/28/1996）
-      const m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-      if (m2) return `${m2[3]}-${m2[1].padStart(2,'0')}-${m2[2].padStart(2,'0')}`;
-      // yyyymmdd
-      const m3 = s.match(/^(\d{4})(\d{2})(\d{2})$/);
-      if (m3) return `${m3[1]}-${m3[2]}-${m3[3]}`;
-      return s;
+
+      // ── 民國年格式（年份僅2位，如 78.03.04 = 1989）
+      const m2 = s.match(/^(\d{2})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+      if (m2) {
+        const y = parseInt(m2[1]) + 1911;
+        return `${y}-${m2[2].padStart(2,'0')}-${m2[3].padStart(2,'0')}`;
+      }
+
+      // ── d/m/yyyy 或 m/d/yyyy（28/08/1998 → 日>12則為 d/m/yyyy）
+      const m3 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (m3) {
+        const a = parseInt(m3[1]);
+        if (a > 12) return `${m3[3]}-${m3[2].padStart(2,'0')}-${m3[1].padStart(2,'0')}`;
+        return `${m3[3]}-${m3[1].padStart(2,'0')}-${m3[2].padStart(2,'0')}`;
+      }
+
+      // ── 帶空格：1991 04 22
+      const m4 = s.match(/^(\d{4})\s+(\d{1,2})\s+(\d{1,2})$/);
+      if (m4) return `${m4[1]}-${m4[2].padStart(2,'0')}-${m4[3].padStart(2,'0')}`;
+
+      return s; // 無法解析，原樣保留（如 '199/08/17' 年份有誤）
     };
 
     const cell = (row, idx) => (idx >= 0 && idx < row.length && row[idx] != null) ? String(row[idx]).trim() : '';
