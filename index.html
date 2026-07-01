@@ -1212,6 +1212,7 @@ async function importGoogleForm() {
     const fail = result.failed || 0;
     resultBox.style.background = fail > 0 ? '#fff3cd' : '#d4edda';
     resultBox.style.border = `1px solid ${fail > 0 ? '#ffc107' : '#28a745'}`;
+    resultBox.innerHTML = `
       ✅ 成功匯入：<strong>${ok}</strong> 筆 &nbsp;
       ⏭ 已跳過（重複）：<strong>${skip}</strong> 筆 &nbsp;
       ${fail > 0 ? `❌ 失敗：<strong>${fail}</strong> 筆` : ''}
