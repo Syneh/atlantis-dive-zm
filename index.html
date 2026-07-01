@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.2</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.3</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -933,7 +933,8 @@ async function exportInsurance() {
   if (!doFubon && !doExcel) { alert('請至少選擇一種匯出格式'); return; }
   showLoading('從 Google Sheets 取得資料…');
   try {
-    const data = await api({ action:'getRegistrations' });
+    // 使用公司 FD報名 sheet 的資料（含團名解析）
+    const data = await api({ action:'getRegistrationsFromForm' });
     hideLoading();
     let regs = data.registrations || [];
     if (teamVal !== 'all') regs = regs.filter(r => r['團名']===teamVal);
