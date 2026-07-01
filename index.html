@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.0</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.1</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -1052,79 +1052,99 @@ async function importGoogleForm() {
 
   showLoading('讀取 Excel 檔案中…');
   try {
-    // 動態載入 SheetJS（避免頁面載入時的 CDN 錯誤）
     if (typeof XLSX === 'undefined') {
       await new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        // 嘗試多個 CDN
         s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
         s.onload = resolve;
         s.onerror = () => {
-          // fallback: unpkg
           const s2 = document.createElement('script');
           s2.src = 'https://unpkg.com/xlsx/dist/xlsx.full.min.js';
-          s2.onload = resolve;
-          s2.onerror = reject;
+          s2.onload = resolve; s2.onerror = reject;
           document.head.appendChild(s2);
         };
         document.head.appendChild(s);
       });
     }
+
     const buf = await fileInput.files[0].arrayBuffer();
     const wb = XLSX.read(buf, { type: 'array', cellDates: true });
 
-    // 找 FD報名 sheet
     const sheetName = wb.SheetNames.find(n => n.includes('FD報名') || n.includes('FD') || n.includes('報名'));
     if (!sheetName) throw new Error('找不到報名工作表（需包含「FD報名」或「報名」）');
 
     const ws = wb.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+    // raw:false 讓日期保持 Date 物件，header:1 用 index array
+    const allRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, raw: false, dateNF: 'yyyy-mm-dd' });
 
-    if (rows.length === 0) throw new Error('工作表內沒有資料');
+    if (allRows.length < 2) throw new Error('工作表內沒有資料');
 
-    // 欄位映射：Google 表單 -> 新系統
-    function mapRow(r) {
-      // 取任意欄位（支援中英文混合欄名）
-      const get = (...keys) => {
-        for (const k of Object.keys(r)) {
-          if (keys.some(key => k.includes(key))) return String(r[k] || '').trim();
-        }
-        return '';
-      };
+    // 欄位索引（對照 FD報名 標準欄位）
+    const HDR = allRows[0];
+    const col = name => HDR.findIndex(h => h && String(h).includes(name));
 
-      // 日期格式化
-      const fmtDate = v => {
-        if (!v) return '';
-        // Excel Date 物件
-        if (v instanceof Date) {
-          const y = v.getFullYear();
-          const m = String(v.getMonth()+1).padStart(2,'0');
-          const d = String(v.getDate()).padStart(2,'0');
-          return `${y}-${m}-${d}`;
-        }
-        const s = String(v).trim();
-        // 台灣格式 1996/05/07 or 19960507
-        const m1 = s.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
-        if (m1) return `${m1[1]}-${m1[2].padStart(2,'0')}-${m1[3].padStart(2,'0')}`;
-        const m2 = s.match(/^(\d{4})(\d{2})(\d{2})$/);
-        if (m2) return `${m2[1]}-${m2[2]}-${m2[3]}`;
-        // Excel 序列號
-        if (/^\d{5}$/.test(s)) {
-          const d = new Date(Math.round((parseFloat(s) - 25569) * 86400 * 1000));
-          const y = d.getUTCFullYear(), mo = String(d.getUTCMonth()+1).padStart(2,'0'), dy = String(d.getUTCDate()).padStart(2,'0');
-          return `${y}-${mo}-${dy}`;
-        }
-        return s;
-      };
+    const COL = {
+      ts:        0,   // 時間戳記
+      name:      1,   // 中文姓名
+      diveDate:  2,   // 要參加的潛水日期
+      time:      3,   // 想參加的時間
+      cert:      4,   // 證照
+      dives:     5,   // 潛水支數
+      lastDive:  6,   // 上一次潛水
+      dob:       7,   // 出生年月日
+      idNo:      8,   // 身分證字號
+      phone:     9,   // 手機號碼
+      gear:     10,   // 租借裝備
+      height:   11,   // 身高
+      weight:   12,   // 體重
+      ballast:  13,   // 配重
+      foot:     14,   // 腳尺寸
+      transport:15,   // 交通
+      notes:    16,   // 其他想說的話
+      h1:       18,   // 健康問題 1
+      h2:       19,   // 懷孕
+      h3:       20,   // 肺部
+    };
 
-      // 租借裝備正規化
-      const gearRaw = get('租借', 'Gear', 'gear');
+    // 日期格式化：支援 Date 物件、'yyyy-mm-dd'、'yyyy/mm/dd'、'm/d/yyyy' 等格式
+    const fmtDate = v => {
+      if (!v) return '';
+      if (v instanceof Date || (typeof v === 'object' && v.getFullYear)) {
+        const y = v.getFullYear(), m = String(v.getMonth()+1).padStart(2,'0'), d = String(v.getDate()).padStart(2,'0');
+        return `${y}-${m}-${d}`;
+      }
+      const s = String(v).trim();
+      // yyyy-mm-dd 或 yyyy/mm/dd
+      const m1 = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (m1) return `${m1[1]}-${m1[2].padStart(2,'0')}-${m1[3].padStart(2,'0')}`;
+      // m/d/yyyy（美式格式，例如 7/28/1996）
+      const m2 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (m2) return `${m2[3]}-${m2[1].padStart(2,'0')}-${m2[2].padStart(2,'0')}`;
+      // yyyymmdd
+      const m3 = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+      if (m3) return `${m3[1]}-${m3[2]}-${m3[3]}`;
+      return s;
+    };
+
+    const cell = (row, idx) => (idx >= 0 && idx < row.length && row[idx] != null) ? String(row[idx]).trim() : '';
+    const isNo = s => !s || s.includes('否') || s.toLowerCase().includes('no');
+
+    const records = [];
+    for (const row of allRows.slice(1)) {
+      const name = cell(row, COL.name);
+      if (!name) continue; // 跳過空白列
+
+      const idNoRaw = cell(row, COL.idNo).toUpperCase();
+      const diveDateRaw = row[COL.diveDate];
+      const diveDate = fmtDate(diveDateRaw);
+
+      // 裝備
+      const gearRaw = cell(row, COL.gear);
       let gear = '不需租借';
-      if (gearRaw && !gearRaw.includes('不需') && !gearRaw.includes('No need') && !gearRaw.includes('NO Need')) {
+      if (gearRaw && !gearRaw.includes('不需') && !gearRaw.includes('No need')) {
         if (gearRaw.includes('Full Set') || gearRaw.includes('全套')) {
           gear = '全套裝備';
         } else {
-          // 逐項比對
           const items = [];
           if (gearRaw.includes('面鏡') || gearRaw.includes('Mask')) items.push('面鏡');
           if (gearRaw.includes('防寒衣') || gearRaw.includes('Wetsuit')) items.push('防寒衣');
@@ -1137,77 +1157,61 @@ async function importGoogleForm() {
         }
       }
 
-      // 交通正規化
-      const transRaw = get('交通', 'arrange', 'Would you like');
-      let transport = '自行前往';
-      if (transRaw.includes('搭車') || transRaw.includes('Yes I need') || transRaw.includes('Yes,')) {
-        transport = '需要接駁';
-      }
-
-      // 健康問題
-      const h1 = get('健康', 'heart', 'health problems');
-      const h2 = get('懷孕', 'pregnant');
-      const h3 = get('肺', 'lungs', 'breathing');
-      const isNo = s => !s || s.includes('否') || s.toLowerCase().includes('no');
-      const health = {
-        h1: isNo(h1) ? 'no' : 'yes',
-        h2: isNo(h2) ? 'no' : 'yes',
-        h3: isNo(h3) ? 'no' : 'yes',
-        h4: 'no', h5: 'no', h6: 'no'
-      };
+      // 交通
+      const transRaw = cell(row, COL.transport);
+      const transport = (transRaw.includes('搭車') || transRaw.includes('Yes I need') || transRaw.includes('Yes,')) ? '需要接駁' : '自行前往';
 
       // 時間
-      const timeRaw = get('時間', 'session', 'Which session');
+      const timeRaw = cell(row, COL.time);
       let time = '';
-      if (timeRaw.includes('上午') || timeRaw.toLowerCase().includes('morning') || timeRaw.toLowerCase().includes('am')) time = '上午場';
-      else if (timeRaw.includes('下午') || timeRaw.toLowerCase().includes('afternoon') || timeRaw.toLowerCase().includes('pm')) time = '下午場';
+      if (timeRaw.includes('上午') || timeRaw.toLowerCase().includes('morning')) time = '上午場 (08:00)';
+      else if (timeRaw.includes('下午') || timeRaw.toLowerCase().includes('afternoon')) time = '下午場 (13:00)';
       else if (timeRaw.includes('夜潛') || timeRaw.toLowerCase().includes('night')) time = '夜潛';
 
-      // 時間戳記
-      let ts = get('時間戳記', 'Timestamp');
-      if (!ts) ts = new Date().toISOString();
+      const h1Raw = cell(row, COL.h1);
+      const h2Raw = cell(row, COL.h2);
+      const h3Raw = cell(row, COL.h3);
 
-      return {
-        timestamp: ts,
-        type: 'solo',
-        teamCode: '',
-        name: get('中文姓名', 'Full Name', 'Name'),
-        idNo: get('身分證', 'ID Number', 'ID'),
-        dob: fmtDate(r[Object.keys(r).find(k => k.includes('出生') || k.includes('Birth')) || ''] || ''),
-        height: get('身高', 'Height'),
-        weight: get('體重', 'Weight'),
-        foot: get('腳尺寸', 'Foot Size'),
-        ballast: get('配重', 'Weight (kg)'),
-        phone: get('手機', 'Mobile'),
-        diveDate: fmtDate(r[Object.keys(r).find(k => k.includes('潛水日期') || k.includes('Date You Wish')) || ''] || ''),
-        time,
-        gear,
-        cert: get('證照', 'Certification'),
-        dives: get('潛水支數', 'Number of Dives'),
-        lastDive: fmtDate(r[Object.keys(r).find(k => k.includes('上一次') || k.includes('last dive')) || ''] || ''),
+      records.push({
+        timestamp: cell(row, COL.ts) || new Date().toISOString(),
+        type: 'solo', teamCode: '',
+        name,
+        idNo: idNoRaw,
+        dob:      fmtDate(row[COL.dob]),
+        height:   cell(row, COL.height),
+        weight:   cell(row, COL.weight),
+        foot:     cell(row, COL.foot),
+        ballast:  cell(row, COL.ballast),
+        phone:    cell(row, COL.phone),
+        diveDate,
+        time, gear,
+        cert:     cell(row, COL.cert),
+        dives:    cell(row, COL.dives),
+        lastDive: fmtDate(row[COL.lastDive]),
         transport,
-        notes: get('其他', 'Anything else'),
-        health,
-        source: 'google_form'  // 標記來源
-      };
+        notes:    cell(row, COL.notes),
+        health: {
+          h1: isNo(h1Raw) ? 'no' : 'yes',
+          h2: isNo(h2Raw) ? 'no' : 'yes',
+          h3: isNo(h3Raw) ? 'no' : 'yes',
+          h4: 'no', h5: 'no', h6: 'no'
+        },
+        source: 'google_form'
+      });
     }
 
-    // 過濾有效資料（有姓名的）
-    const records = rows.map(mapRow).filter(r => r.name);
     if (records.length === 0) throw new Error('沒有找到有效的報名資料（請確認姓名欄位）');
 
     showLoading(`準備匯入 ${records.length} 筆資料…`);
     const result = await api({ action: 'importGoogleForm', records });
     hideLoading();
 
-    // 顯示結果
     resultDiv.style.display = 'block';
     const ok = result.imported || 0;
     const skip = result.skipped || 0;
     const fail = result.failed || 0;
     resultBox.style.background = fail > 0 ? '#fff3cd' : '#d4edda';
     resultBox.style.border = `1px solid ${fail > 0 ? '#ffc107' : '#28a745'}`;
-    resultBox.innerHTML = `
       ✅ 成功匯入：<strong>${ok}</strong> 筆 &nbsp;
       ⏭ 已跳過（重複）：<strong>${skip}</strong> 筆 &nbsp;
       ${fail > 0 ? `❌ 失敗：<strong>${fail}</strong> 筆` : ''}
