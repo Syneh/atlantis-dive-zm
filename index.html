@@ -513,7 +513,7 @@ const API = 'https://script.google.com/macros/s/AKfycbxjva8mwGHYRMorxt4FbYrpfTxN
 const HEALTH_KEYS = ['h1','h2','h3','h4','h5','h6'];
 let currentType = '', currentTeam = null;
 let healthState = {};
-let cachedTeams = [], cachedRegs = [];
+let cachedTeams = [], cachedRegs = [], cachedFormRegs = [];
 let adminToken = null;
 
 // ── 裝備：需要顯示尺寸的項目 ──
@@ -838,12 +838,14 @@ function formatDisplayDate(val) {
 async function loadAdminData() {
   showLoading('載入資料中…');
   try {
-    const [teamData, regData] = await Promise.all([
+    const [teamData, regData, formRegData] = await Promise.all([
       api({ action:'getTeamsAdmin' }),
-      api({ action:'getRegistrations' })
+      api({ action:'getRegistrations' }),
+      api({ action:'getRegistrationsFromForm' })
     ]);
     cachedTeams = teamData.teams || [];
     cachedRegs = regData.registrations || [];
+    cachedFormRegs = formRegData.registrations || [];
     hideLoading();
     renderTeamsList();
     renderExportSel();
@@ -904,7 +906,7 @@ function renderTeamsList() {
     return;
   }
   el.innerHTML = cachedTeams.map(t => {
-    const members = cachedRegs.filter(r => r['團名'] === t.code);
+    const members = cachedFormRegs.filter(r => r['團名'] === t.code);
     return `<div class="card" style="margin-top:10px;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <strong>👥 ${t.code}</strong>
