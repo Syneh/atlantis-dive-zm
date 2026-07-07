@@ -121,7 +121,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="logo">🤿</div>
   <div>
     <h1>亞特蘭提斯潛水店</h1>
-    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.4</span></p>
+    <p>Atlantis Dive Shop — 報名系統 <span style="opacity:0.6;font-size:0.72rem;">v1.10.5</span></p>
   </div>
   <button class="admin-btn" onclick="showAdminLogin()">🔐 店長後台</button>
 </header>
@@ -967,8 +967,17 @@ let _wqyFontB64Cache = null;
 async function loadWQYFontBase64() {
   if (_wqyFontB64Cache) return _wqyFontB64Cache;
   const resp = await fetch('fonts/wqy-zenhei-cjk.ttf');
-  if (!resp.ok) throw new Error('無法載入中文字型檔 (fonts/wqy-zenhei-cjk.ttf)');
+  if (!resp.ok) throw new Error('無法載入中文字型檔 (fonts/wqy-zenhei-cjk.ttf)，HTTP ' + resp.status);
   const bytes = new Uint8Array(await resp.arrayBuffer());
+  // A valid TTF is several MB; anything tiny means the file wasn't uploaded correctly
+  // (e.g. an empty/placeholder file on GitHub) rather than a real code problem.
+  if (bytes.length < 1024 * 1024) {
+    throw new Error(
+      '中文字型檔案異常（只有 ' + bytes.length + ' bytes，正常應為 7MB 以上）。' +
+      '請確認 fonts/wqy-zenhei-cjk.ttf 有正確上傳到 GitHub（用「Add file → Upload files」直接上傳二進位檔，' +
+      '不要用線上文字編輯器建立或編輯這個檔案）。'
+    );
+  }
   let binary = '';
   const CHUNK = 0x8000;
   for (let i = 0; i < bytes.length; i += CHUNK) {
